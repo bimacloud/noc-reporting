@@ -1,0 +1,62 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="{{ route('service_logs.index') }}" style="color:#6b7280;text-decoration:none;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></a>
+            <h1 style="font-size:1.125rem;font-weight:700;color:#111827;margin:0;">Edit Service Log</h1>
+        </div>
+    </x-slot>
+    <div style="max-width:640px;">
+        <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);">
+            <form method="POST" action="{{ route('service_logs.update', $log) }}">
+                @csrf @method('PUT')
+                @php $inp = 'width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:.875rem;color:#111827;box-sizing:border-box;'; @endphp
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Customer</label>
+                        <select name="customer_id" style="{{ $inp }}">
+                            @foreach($customers as $cust)
+                                <option value="{{ $cust->id }}" {{ old('customer_id', $log->customer_id)==$cust->id?'selected':'' }}>{{ $cust->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Service Type</label>
+                        <select name="type" style="{{ $inp }}">
+                            @foreach(['activation','upgrade','downgrade','suspension','termination'] as $t)
+                                <option value="{{ $t }}" {{ old('type', $log->type)===$t?'selected':'' }}>{{ ucfirst($t) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Old Bandwidth</label>
+                        <input type="text" name="old_bandwidth" value="{{ old('old_bandwidth', $log->old_bandwidth) }}" style="{{ $inp }}">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">New Bandwidth</label>
+                        <input type="text" name="new_bandwidth" value="{{ old('new_bandwidth', $log->new_bandwidth) }}" style="{{ $inp }}">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Request Date</label>
+                        <input type="date" name="request_date" value="{{ old('request_date', $log->request_date) }}" style="{{ $inp }}">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Execute Date</label>
+                        <input type="date" name="execute_date" value="{{ old('execute_date', $log->execute_date) }}" style="{{ $inp }}">
+                    </div>
+                </div>
+                <div style="margin-bottom:24px;">
+                    <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Notes</label>
+                    <textarea name="notes" rows="3" style="{{ $inp }}">{{ old('notes', $log->notes) }}</textarea>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button type="submit" style="padding:9px 20px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:.875rem;font-weight:500;cursor:pointer;">Update</button>
+                    <a href="{{ route('service_logs.index') }}" style="padding:9px 20px;background:#f3f4f6;color:#374151;border-radius:6px;font-size:.875rem;text-decoration:none;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-app-layout>
