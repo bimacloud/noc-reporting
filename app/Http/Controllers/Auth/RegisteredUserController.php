@@ -43,8 +43,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Do not auto-login the user, redirect to login page with message
+        return redirect()->route('login')->with('status', 'Registration successful! Your account is pending administrator approval before you can log in.');
     }
 }

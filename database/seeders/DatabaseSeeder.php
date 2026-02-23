@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'role' => 'admin',
             'password' => bcrypt('password'),
+            'is_approved' => true,
         ]);
 
         // NOC
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'noc@example.com',
             'role' => 'noc',
             'password' => bcrypt('password'),
+            'is_approved' => true,
         ]);
 
         // Manager
@@ -37,6 +39,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'manager@example.com',
             'role' => 'manager',
             'password' => bcrypt('password'),
+            'is_approved' => true,
         ]);
         $this->call([
             MasterDataSeeder::class,

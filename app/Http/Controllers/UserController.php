@@ -96,4 +96,13 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+
+    /**
+     * Approve a pending user.
+     */
+    public function approve(User $user)
+    {
+        $user->update(['is_approved' => true]);
+        return redirect()->route('users.index')->with('success', 'User ' . $user->name . ' has been approved and can now log in.');
+    }
 }

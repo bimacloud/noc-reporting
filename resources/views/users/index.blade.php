@@ -22,6 +22,7 @@
                         <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                         <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                         <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>
@@ -39,8 +40,24 @@
                                     <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ ucfirst($user->role) }}</span>
                                 @endif
                             </td>
+                            <td class="py-3 px-4">
+                                @if($user->is_approved)
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700">Active</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Pending Approval</span>
+                                @endif
+                            </td>
                             <td class="py-3 px-4 text-sm text-right">
                                 <div class="flex items-center justify-end gap-2">
+                                    @if(!$user->is_approved)
+                                        <form action="{{ route('users.approve', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Approve this user account?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="p-1 px-2 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition" title="Approve">
+                                                Approve
+                                            </button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('users.edit', $user) }}" class="p-1 text-gray-400 hover:text-blue-600 transition" title="Edit">
                                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

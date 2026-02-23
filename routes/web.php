@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
 // NetBox Sync & Admin functions
 Route::middleware(['auth','role:admin'])->prefix('admin')->group(function () {
     // User Management
+    Route::patch('users/{user}/approve', [\App\Http\Controllers\UserController::class, 'approve'])->name('users.approve');
     Route::resource('users', \App\Http\Controllers\UserController::class);
 
     Route::post('/sync/netbox/site-groups', [NetboxSyncController::class, 'syncSiteGroups'])
