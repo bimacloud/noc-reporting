@@ -1,5 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <style>
+            .select2-container .select2-selection--single {
+                height: 38px !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 6px !important;
+                display: flex;
+                align-items: center;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 36px !important;
+                right: 8px !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: #111827 !important;
+                font-size: .875rem !important;
+                padding-left: 0 !important;
+            }
+        </style>
         <div style="display:flex;align-items:center;gap:10px;">
             <a href="{{ route('service_logs.index') }}" style="color:#6b7280;text-decoration:none;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></a>
             <h1 style="font-size:1.125rem;font-weight:700;color:#111827;margin:0;">Add Service Log</h1>
@@ -14,7 +33,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Customer *</label>
-                        <select name="customer_id" required style="{{ $inp }}" onchange="document.getElementById('old_bandwidth').value = this.options[this.selectedIndex].getAttribute('data-bandwidth') || '';">
+                        <select name="customer_id" id="customer_id" required style="{{ $inp }}">
                             <option value="" data-bandwidth="">— Select Customer —</option>
                             @foreach($customers as $cust)
                                 <option value="{{ $cust->id }}" data-bandwidth="{{ $cust->bandwidth }}" {{ old('customer_id')==$cust->id?'selected':'' }}>{{ $cust->name }}</option>
@@ -68,4 +87,20 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#customer_id').select2({
+                placeholder: '— Select Customer —',
+                width: '100%'
+            }).on('select2:select', function (e) {
+                var bandwidth = $(e.params.data.element).data('bandwidth') || '';
+                document.getElementById('old_bandwidth').value = bandwidth;
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

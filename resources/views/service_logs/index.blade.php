@@ -14,6 +14,26 @@
         </div>
     </x-slot>
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 33px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 31px !important;
+            right: 4px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151 !important;
+            font-size: .875rem !important;
+            padding-left: 0 !important;
+        }
+    </style>
+
     @php
     if (!function_exists('formatBw')) {
         function formatBw($val) {
@@ -34,7 +54,7 @@
         <form method="GET" action="{{ route('service_logs.index') }}" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
             <div>
                 <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Customer</label>
-                <select name="customer_id" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;">
+                <select name="customer_id" id="filter_customer_id" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;min-width:180px;">
                     <option value="">All Customers</option>
                     @foreach($customers as $cust)
                         <option value="{{ $cust->id }}" {{ request('customer_id') == $cust->id ? 'selected' : '' }}>{{ $cust->name }}</option>
@@ -115,4 +135,17 @@
         <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">{{ $logs->links() }}</div>
         @endif
     </div>
+
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#filter_customer_id').select2({
+                placeholder: 'All Customers',
+                width: '100%'
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

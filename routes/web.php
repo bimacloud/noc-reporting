@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::put('backbone_incidents/{incident}/resolve', [BackboneIncidentController::class, 'resolve'])->name('backbone_incidents.resolve');
     Route::resource('backbone_incidents', BackboneIncidentController::class);
     Route::resource('upstream_reports', UpstreamReportController::class);
+    Route::get('customer_incidents/{incident}/resolve', [CustomerIncidentController::class, 'resolveForm'])->name('customer_incidents.resolve_form');
+    Route::put('customer_incidents/{incident}/resolve', [CustomerIncidentController::class, 'resolve'])->name('customer_incidents.resolve');
     Route::resource('customer_incidents', CustomerIncidentController::class);
     Route::resource('service_logs', ServiceLogController::class);
 });

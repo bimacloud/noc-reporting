@@ -1,5 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <style>
+            .select2-container .select2-selection--single {
+                height: 38px !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 6px !important;
+                display: flex;
+                align-items: center;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 36px !important;
+                right: 8px !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: #111827 !important;
+                font-size: .875rem !important;
+                padding-left: 0 !important;
+            }
+        </style>
         <div style="display:flex;align-items:center;gap:10px;">
             <a href="{{ route('customer_incidents.index') }}" style="color:#6b7280;text-decoration:none;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></a>
             <h1 style="font-size:1.125rem;font-weight:700;color:#111827;margin:0;">Edit Customer Incident</h1>
@@ -13,7 +32,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Customer</label>
-                        <select name="customer_id" style="{{ $inp }}">
+                        <select name="customer_id" id="customer_id" style="{{ $inp }}">
                             @foreach($customers as $cust)
                                 <option value="{{ $cust->id }}" {{ old('customer_id', $incident->customer_id)==$cust->id?'selected':'' }}>{{ $cust->name }}</option>
                             @endforeach
@@ -21,13 +40,18 @@
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Incident Date</label>
-                        <input type="datetime-local" name="incident_date" value="{{ old('incident_date', $incident->incident_date ? \Carbon\Carbon::parse($incident->incident_date)->format('Y-m-d\TH:i') : '') }}" style="{{ $inp }}">
+                        <input type="datetime-local" name="incident_date" id="incident_date" value="{{ old('incident_date', $incident->incident_date ? \Carbon\Carbon::parse($incident->incident_date)->format('Y-m-d\TH:i') : '') }}" style="{{ $inp }}">
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Resolve Date (Optional)</label>
+                        <input type="datetime-local" name="resolve_date" id="resolve_date" value="{{ old('resolve_date', $incident->resolve_date ? \Carbon\Carbon::parse($incident->resolve_date)->format('Y-m-d\TH:i') : '') }}" style="{{ $inp }}">
+                    </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Duration (min)</label>
-                        <input type="number" name="duration" value="{{ old('duration', $incident->duration) }}" min="0" style="{{ $inp }}">
+                        <input type="number" name="duration" id="duration" value="{{ old('duration', $incident->duration) }}" min="0" style="{{ $inp }}">
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Status</label>
@@ -42,8 +66,8 @@
                     <input type="text" name="root_cause" value="{{ old('root_cause', $incident->root_cause) }}" style="{{ $inp }}">
                 </div>
                 <div style="margin-bottom:24px;">
-                    <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Description</label>
-                    <textarea name="description" rows="3" style="{{ $inp }}">{{ old('description', $incident->description) }}</textarea>
+                    <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Description / Notes</label>
+                    <textarea name="notes" rows="3" style="{{ $inp }}">{{ old('notes', $incident->notes) }}</textarea>
                 </div>
                 <div style="display:flex;gap:10px;">
                     <button type="submit" style="padding:9px 20px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:.875rem;font-weight:500;cursor:pointer;">Update</button>
@@ -52,4 +76,41 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const incDate = document.getElementById('incident_date');
+            const resDate = document.getElementById('resolve_date');
+            const dur = document.getElementById('duration');
+
+            function calcDur() {
+                if (incDate.value && resDate.value) {
+                    const start = new Date(incDate.value);
+                    const end = new Date(resDate.value);
+                    if (end >= start) {
+                        const diffMins = Math.floor((end - start) / 60000);
+                        dur.value = diffMins;
+                    } else {
+                        dur.value = '';
+                    }
+                }
+            }
+
+            incDate.addEventListener('change', calcDur);
+            resDate.addEventListener('change', calcDur);
+        });
+    </script>
+    
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#customer_id').select2({
+                placeholder: '— Select Customer —',
+                width: '100%'
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

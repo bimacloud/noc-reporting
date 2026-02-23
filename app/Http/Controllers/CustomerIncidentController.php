@@ -58,7 +58,17 @@ class CustomerIncidentController extends Controller
      */
     public function store(StoreCustomerIncidentRequest $request)
     {
-        CustomerIncident::create($request->validated());
+        $data = $request->validated();
+        
+        if (empty($data['duration']) && !empty($data['resolve_date'])) {
+            $incidentDate = \Carbon\Carbon::parse($data['incident_date']);
+            $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+            $data['duration'] = $incidentDate->diffInMinutes($resolveDate);
+        } elseif (empty($data['duration'])) {
+            $data['duration'] = 0;
+        }
+
+        CustomerIncident::create($data);
 
         return redirect()->route('customer_incidents.index')
             ->with('success', 'Incident logged successfully.');
@@ -86,7 +96,17 @@ class CustomerIncidentController extends Controller
      */
     public function update(UpdateCustomerIncidentRequest $request, CustomerIncident $customerIncident)
     {
-        $customerIncident->update($request->validated());
+        $data = $request->validated();
+        
+        if (empty($data['duration']) && !empty($data['resolve_date'])) {
+            $incidentDate = \Carbon\Carbon::parse($data['incident_date']);
+            $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+            $data['duration'] = $incidentDate->diffInMinutes($resolveDate);
+        } elseif (empty($data['duration'])) {
+            $data['duration'] = 0;
+        }
+
+        $customerIncident->update($data);
 
         return redirect()->route('customer_incidents.index')
             ->with('success', 'Incident updated successfully.');
@@ -101,5 +121,32 @@ class CustomerIncidentController extends Controller
 
         return redirect()->route('customer_incidents.index')
             ->with('success', 'Incident deleted successfully.');
+    }
+
+    public function resolveForm(CustomerIncident $incident)
+    {
+        return view('customer_incidents.resolve', compact('incident'));
+    }
+
+    public function resolve(Request $request, CustomerIncident $incident)
+    {
+        $data = $request->validate([
+            'resolve_date' => 'required|date|after_or_equal:incident_date',
+            'notes' => 'required|string',
+        ]);
+
+        $incidentDate = \Carbon\Carbon::parse($incident->incident_date);
+        $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+        $duration = $incidentDate->diffInMinutes($resolveDate);
+
+        $incident->update([
+            'resolve_date' => $data['resolve_date'],
+            'notes' => $data['notes'],
+            'duration' => $duration,
+            'status' => 'closed',
+        ]);
+
+        return redirect()->route('customer_incidents.index')
+            ->with('success', 'Customer incident resolved successfully.');
     }
 }

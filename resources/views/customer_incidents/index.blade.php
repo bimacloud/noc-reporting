@@ -14,12 +14,32 @@
         </div>
     </x-slot>
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 33px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 31px !important;
+            right: 4px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151 !important;
+            font-size: .875rem !important;
+            padding-left: 0 !important;
+        }
+    </style>
+
     {{-- Filter --}}
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
         <form method="GET" action="{{ route('customer_incidents.index') }}" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
             <div>
                 <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Customer</label>
-                <select name="customer_id" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;">
+                <select name="customer_id" id="filter_customer_id" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;min-width:180px;">
                     <option value="">All Customers</option>
                     @foreach($customers as $cust)
                         <option value="{{ $cust->id }}" {{ request('customer_id') == $cust->id ? 'selected' : '' }}>{{ $cust->name }}</option>
@@ -75,6 +95,9 @@
                         <div style="display:inline-flex;gap:6px;">
                             <a href="{{ route('customer_incidents.show', $incident) }}" style="padding:5px 10px;background:#f3f4f6;color:#374151;border-radius:5px;font-size:.8125rem;text-decoration:none;">View</a>
                             @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
+                            @if($incident->status === 'open')
+                            <a href="{{ route('customer_incidents.resolve_form', $incident) }}" style="padding:5px 10px;background:#10b981;color:#fff;border-radius:5px;font-size:.8125rem;text-decoration:none;">Resolve</a>
+                            @endif
                             <a href="{{ route('customer_incidents.edit', $incident) }}" style="padding:5px 10px;background:#dbeafe;color:#1d4ed8;border-radius:5px;font-size:.8125rem;text-decoration:none;">Edit</a>
                             <form method="POST" action="{{ route('customer_incidents.destroy', $incident) }}" onsubmit="return confirm('Delete this incident?');" style="display:inline;">
                                 @csrf @method('DELETE')
@@ -100,4 +123,17 @@
         <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">{{ $incidents->links() }}</div>
         @endif
     </div>
+
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#filter_customer_id').select2({
+                placeholder: 'All Customers',
+                width: '100%'
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

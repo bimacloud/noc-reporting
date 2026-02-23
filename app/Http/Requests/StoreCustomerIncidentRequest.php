@@ -19,10 +19,11 @@ class StoreCustomerIncidentRequest extends FormRequest
         return [
             'customer_id' => 'required|exists:customers,id',
             'incident_date' => 'required|date',
+            'resolve_date' => 'nullable|date|after_or_equal:incident_date',
             'physical_issue' => 'boolean',
             'backbone_issue' => 'boolean',
             'layer_issue' => 'nullable|string',
-            'duration' => 'required|integer|min:0',
+            'duration' => 'nullable|integer|min:0',
             'root_cause' => 'nullable|string',
             'status' => 'required|in:open,closed',
             'notes' => 'nullable|string',

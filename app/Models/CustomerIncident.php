@@ -18,10 +18,12 @@ class CustomerIncident extends Model
         'root_cause',
         'status',
         'notes',
+        'resolve_date',
     ];
 
     protected $casts = [
         'incident_date' => 'datetime',
+        'resolve_date' => 'datetime',
         'physical_issue' => 'boolean',
         'backbone_issue' => 'boolean',
     ];
