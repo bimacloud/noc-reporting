@@ -63,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::get('customer_incidents/{incident}/resolve', [CustomerIncidentController::class, 'resolveForm'])->name('customer_incidents.resolve_form');
     Route::put('customer_incidents/{incident}/resolve', [CustomerIncidentController::class, 'resolve'])->name('customer_incidents.resolve');
     Route::resource('customer_incidents', CustomerIncidentController::class);
+    Route::get('/service_logs/import/template', [ServiceLogController::class, 'downloadTemplate'])->name('service_logs.template');
+    Route::post('/service_logs/import', [ServiceLogController::class, 'import'])->name('service_logs.import');
     Route::resource('service_logs', ServiceLogController::class);
 });
 

@@ -6,13 +6,35 @@
                 <p style="font-size:.8125rem;color:#6b7280;margin:0;">Activation & upgrade service history</p>
             </div>
             @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
-            <a href="{{ route('service_logs.create') }}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#2563eb;color:#fff;border-radius:6px;font-size:.875rem;font-weight:500;text-decoration:none;">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Add Service Log
-            </a>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <form action="{{ route('service_logs.import') }}" method="POST" enctype="multipart/form-data" id="importForm" style="display:none;">
+                    @csrf
+                    <input type="file" name="csv_file" id="csvFile" accept=".csv" onchange="document.getElementById('importForm').submit()">
+                </form>
+                <a href="{{ route('service_logs.template') }}" style="padding:7px 12px;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;font-size:.75rem;font-weight:500;text-decoration:none;" title="Download CSV Template">
+                    CSV Template
+                </a>
+                <button type="button" onclick="document.getElementById('csvFile').click()" style="padding:9px 16px;background:#f3f4f6;color:#374151;border:1px solid #d1d5db;border-radius:6px;font-size:.875rem;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Import CSV
+                </button>
+                <a href="{{ route('service_logs.create') }}" style="padding:9px 16px;background:#2563eb;color:#fff;border-radius:6px;font-size:.875rem;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg> Add Service Log
+                </a>
+            </div>
             @endif
         </div>
     </x-slot>
+
+    @if(session('import_errors'))
+    <div style="margin-bottom:20px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:12px 16px;border-radius:10px;">
+        <p style="font-weight:600;margin:0 0 8px;font-size:0.875rem;">Import Errors:</p>
+        <ul style="margin:0;padding-left:20px;font-size:0.75rem;">
+            @foreach(session('import_errors') as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>

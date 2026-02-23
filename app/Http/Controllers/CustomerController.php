@@ -103,9 +103,20 @@ class CustomerController extends Controller
             $status = in_array($statusRaw, ['active','inactive','suspended']) ? $statusRaw : 'active';
             $regDate = isset($data[5]) && !empty(trim($data[5])) ? trim($data[5]) : null;
 
+            $parseIdDate = function($dateStr) {
+                if (!$dateStr) return null;
+                $months = [
+                    'januari' => 'January', 'februari' => 'February', 'maret' => 'March',
+                    'mei' => 'May', 'juni' => 'June', 'juli' => 'July', 'agustus' => 'August',
+                    'oktober' => 'October', 'nopember' => 'November', 'november' => 'November', 'desember' => 'December'
+                ];
+                $dateStr = str_ireplace(array_keys($months), array_values($months), strtolower($dateStr));
+                return \Carbon\Carbon::parse($dateStr)->format('Y-m-d');
+            };
+
             try {
                 if ($regDate) {
-                    $regDate = \Carbon\Carbon::parse($regDate)->format('Y-m-d');
+                    $regDate = $parseIdDate($regDate);
                 }
                 
                 Customer::create([
