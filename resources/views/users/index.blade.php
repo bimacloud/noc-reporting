@@ -53,8 +53,10 @@
                                         <form action="{{ route('users.approve', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Approve this user account?');">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="p-1 px-2 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition" title="Approve">
-                                                Approve
+                                            <button type="submit" class="p-1 text-gray-400 hover:text-green-600 transition" title="Approve">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
                                             </button>
                                         </form>
                                     @endif
