@@ -13,9 +13,16 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $now = Carbon::now();
+        $selectedDate = $request->input('date', Carbon::now()->format('Y-m'));
+        try {
+            $now = Carbon::createFromFormat('Y-m', $selectedDate);
+        } catch (\Exception $e) {
+            $now = Carbon::now();
+            $selectedDate = $now->format('Y-m');
+        }
+
         $month = $now->format('m');
         $year = $now->format('Y');
         $daysInMonth = $now->daysInMonth;
@@ -163,7 +170,8 @@ class DashboardController extends Controller
             'pieActivations',
             'pieUpgrades',
             'pieDowngrades',
-            'activationFilter'
+            'activationFilter',
+            'selectedDate'
         ));
     }
 

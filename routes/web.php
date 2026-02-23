@@ -64,8 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('service_logs', ServiceLogController::class);
 });
 
-// NetBox Sync — Admin only
+// NetBox Sync & Admin functions
 Route::middleware(['auth','role:admin'])->prefix('admin')->group(function () {
+    // User Management
+    Route::resource('users', \App\Http\Controllers\UserController::class);
 
     Route::post('/sync/netbox/site-groups', [NetboxSyncController::class, 'syncSiteGroups'])
         ->name('netbox.sync.site-groups');

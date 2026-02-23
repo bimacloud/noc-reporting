@@ -3,15 +3,32 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-lg font-semibold text-gray-800">Dashboard</h1>
-                <p class="text-sm text-gray-500">{{ now()->format('l, d F Y') }}</p>
+                <p class="text-sm text-gray-500">
+                    {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedDate)->format('F Y') }}
+                </p>
             </div>
-            <a href="{{ route('dashboard.export') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Export PDF
-            </a>
+            <div class="flex items-center gap-3">
+                <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
+                    <label for="date" class="text-sm font-medium text-gray-600">Period:</label>
+                    <input type="month" id="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()" 
+                           class="border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500 py-1.5 px-3">
+                    
+                    @if(request('incident_filter'))
+                        <input type="hidden" name="incident_filter" value="{{ request('incident_filter') }}">
+                    @endif
+                    @if(request('activation_filter'))
+                        <input type="hidden" name="activation_filter" value="{{ request('activation_filter') }}">
+                    @endif
+                </form>
+
+                <a href="{{ route('dashboard.export', ['date' => $selectedDate]) }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Export PDF
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -124,6 +141,7 @@
                     Incidents (Customer & Backbone)
                 </h3>
                 <form method="GET" action="{{ route('dashboard') }}">
+                    <input type="hidden" name="date" value="{{ $selectedDate }}">
                     <input type="hidden" name="activation_filter" value="{{ $activationFilter }}">
                     <select name="incident_filter" onchange="this.form.submit()" class="text-xs border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
                         <option value="daily" {{ $incidentFilter === 'daily' ? 'selected' : '' }}>Harian (Bulan Ini)</option>
@@ -147,6 +165,7 @@
                     Service Changes (Act, Upg, Dwn)
                 </h3>
                 <form method="GET" action="{{ route('dashboard') }}">
+                    <input type="hidden" name="date" value="{{ $selectedDate }}">
                     <input type="hidden" name="incident_filter" value="{{ $incidentFilter }}">
                     <select name="activation_filter" onchange="this.form.submit()" class="text-xs border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
                         <option value="daily" {{ $activationFilter === 'daily' ? 'selected' : '' }}>Harian (Bulan Ini)</option>
