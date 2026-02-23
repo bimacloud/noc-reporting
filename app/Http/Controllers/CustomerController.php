@@ -17,7 +17,7 @@ class CustomerController extends Controller
 
     public function index()
     {
-        $customers = Customer::with('serviceType')->paginate(10);
+        $customers = Customer::with('serviceType')->get();
         return view('customers.index', compact('customers'));
     }
 
@@ -91,11 +91,13 @@ class CustomerController extends Controller
         $header = fgetcsv($handle, 1000, ",");
         $successCount = 0;
         $errorCount = 0;
+        $errors = [];
 
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
             if (count($data) < 5) continue;
             if (empty(trim($data[0]))) continue;
 
+            $name = trim($data[0]);
             $serviceType = \App\Models\ServiceType::firstOrCreate(['name' => trim($data[1])]);
             $statusRaw = strtolower(trim($data[4]));
             $status = in_array($statusRaw, ['active','inactive','suspended']) ? $statusRaw : 'active';
@@ -107,7 +109,7 @@ class CustomerController extends Controller
                 }
                 
                 Customer::create([
-                    'name' => trim($data[0]),
+                    'name' => $name,
                     'service_type_id' => $serviceType->id,
                     'bandwidth' => trim($data[2]),
                     'address' => trim($data[3]),
@@ -117,12 +119,16 @@ class CustomerController extends Controller
                 $successCount++;
             } catch (\Exception $e) {
                 $errorCount++;
+                $errors[] = "Name: {$name} - Error: {$e->getMessage()}";
             }
         }
         fclose($handle);
 
         $msg = "Import complete. $successCount customer(s) imported.";
-        if ($errorCount > 0) $msg .= " $errorCount error(s) skipped.";
+        if ($errorCount > 0) {
+            $msg .= " $errorCount error(s) skipped.";
+            return redirect()->route('customers.index')->with('success', $msg)->with('import_errors', $errors);
+        }
 
         return redirect()->route('customers.index')->with('success', $msg);
     }

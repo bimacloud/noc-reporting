@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\BackboneLogController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\BackboneLinkController;
 use App\Http\Controllers\UpstreamController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\NetboxSyncController;
 use App\Http\Controllers\SiteGroupController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\NetboxSyncLogController;
+use App\Http\Controllers\ProviderController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('locations', LocationController::class);
     Route::resource('device_types', DeviceTypeController::class);
     Route::resource('service_types', ServiceTypeController::class);
+    Route::resource('providers', ProviderController::class);
     Route::resource('devices', DeviceController::class);
     Route::get('/customers/import/template', [CustomerController::class, 'downloadTemplate'])->name('customers.template');
     Route::post('/customers/import', [CustomerController::class, 'import'])->name('customers.import');
@@ -53,6 +56,8 @@ Route::middleware('auth')->group(function () {
 
     // Monitoring
     Route::resource('device_reports', DeviceReportController::class);
+    Route::get('backbone_incidents/{incident}/resolve', [BackboneIncidentController::class, 'resolveForm'])->name('backbone_incidents.resolve_form');
+    Route::put('backbone_incidents/{incident}/resolve', [BackboneIncidentController::class, 'resolve'])->name('backbone_incidents.resolve');
     Route::resource('backbone_incidents', BackboneIncidentController::class);
     Route::resource('upstream_reports', UpstreamReportController::class);
     Route::resource('customer_incidents', CustomerIncidentController::class);
@@ -75,6 +80,8 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function () {
         ->name('netbox.sync.devices');
 
     // Sync Log Viewer
+    Route::resource('service_logs', ServiceLogController::class);
+    Route::resource('backbone_logs', BackboneLogController::class);
     Route::get('/sync/logs',   [NetboxSyncLogController::class, 'index'])->name('netbox.sync.logs');
     Route::delete('/sync/logs',[NetboxSyncLogController::class, 'destroy'])->name('netbox.sync.logs.clear');
 

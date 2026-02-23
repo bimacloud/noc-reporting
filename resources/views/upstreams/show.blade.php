@@ -13,7 +13,14 @@
     <div style="max-width:540px;">
         <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);">
             <dl style="display:grid;grid-template-columns:140px 1fr;gap:0;">
-                @foreach([['Peer Name',$upstream->peer_name],['Capacity',$upstream->capacity??'—'],['Location',$upstream->location->name??'—'],['Created',$upstream->created_at->format('d M Y')]] as [$l,$v])
+                @foreach([
+                    ['Peer Name', $upstream->peer_name],
+                    ['Provider / NAP', $upstream->provider ?? '—'],
+                    ['ASN', $upstream->asn ?? '—'],
+                    ['Capacity', $upstream->capacity ?? '—'],
+                    ['Location', $upstream->location->name ?? '—'],
+                    ['Created', $upstream->created_at->format('d M Y')]
+                ] as [$l,$v])
                 <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;border-bottom:1px solid #f3f4f6;">{{ $l }}</dt>
                 <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">{{ $v }}</dd>
                 @endforeach

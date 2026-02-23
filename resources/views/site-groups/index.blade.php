@@ -39,12 +39,12 @@
         <div style="display:flex;gap:0;border-bottom:1px solid #f3f4f6;">
             <div style="padding:14px 20px;border-right:1px solid #f3f4f6;">
                 <p style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin:0;">Total Site Groups</p>
-                <p style="font-size:1.25rem;font-weight:700;color:#111827;margin:0;">{{ $siteGroups->total() }}</p>
+                <p style="font-size:1.25rem;font-weight:700;color:#111827;margin:0;">{{ $siteGroups->count() }}</p>
             </div>
         </div>
 
         {{-- Table --}}
-        <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <table id="siteGroupsTable" style="width:100%;border-collapse:collapse;font-size:.875rem;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="text-align:left;padding:10px 16px;font-weight:600;color:#6b7280;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Nama</th>
@@ -56,7 +56,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($siteGroups as $sg)
+                @foreach($siteGroups as $sg)
                 <tr style="border-bottom:1px solid #f3f4f6;transition:background .1s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
                     <td style="padding:12px 16px;">
                         <div style="display:flex;align-items:center;gap:12px;padding-left:{{ $sg->depth * 28 }}px;">
@@ -90,7 +90,7 @@
                     </td>
                     <td style="padding:12px 16px;text-align:center;">
                         @if($sg->sites_count > 0)
-                            <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#dbeafe;color:#1d4ed8;font-size:.75rem;font-weight:700;border-radius:50%;">{{ $sg->sites_count }}</span>
+                            <a href="{{ route('sites.index', ['site_group_id' => $sg->id]) }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#dbeafe;color:#1d4ed8;font-size:.75rem;font-weight:700;border-radius:50%;text-decoration:none;">{{ $sg->sites_count }}</a>
                         @else
                             <span style="color:#d1d5db;">0</span>
                         @endif
@@ -99,24 +99,36 @@
                         <span style="font-size:.75rem;background:#f3f4f6;padding:2px 8px;border-radius:9999px;color:#6b7280;">{{ $sg->depth }}</span>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="6" style="padding:40px;text-align:center;color:#9ca3af;">
-                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;color:#d1d5db;">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                        Belum ada data. Klik <strong>Sync Site Groups</strong> untuk mengambil data dari NetBox.
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
 
-        {{-- Pagination --}}
-        @if($siteGroups->hasPages())
-        <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">
-            {{ $siteGroups->links() }}
-        </div>
-        @endif
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; font-size: 0.875rem; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #2563eb; color: #fff !important; border-radius: 4px; border: 1px solid #2563eb;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#siteGroupsTable').DataTable({
+                "pageLength": 10,
+                "order": [], // Keeps the original hierarchy from the backend
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "Belum ada data. Klik Sync Site Groups untuk mengambil data dari NetBox."
+                }
+            });
+        });
+    </script>
 </x-app-layout>

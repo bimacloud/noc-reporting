@@ -14,6 +14,21 @@
         </div>
     </x-slot>
 
+    @php
+    if (!function_exists('formatBw')) {
+        function formatBw($val) {
+            if (!$val) return '—';
+            if (preg_match('/[a-zA-Z]/', $val)) return $val;
+            $num = (float) $val;
+            if ($num >= 1000) {
+                $g = $num / 1000;
+                return ($g == floor($g) ? $g : number_format($g, 2)) . 'G';
+            }
+            return $num . ' Mbps';
+        }
+    }
+    @endphp
+
     {{-- Filter --}}
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
         <form method="GET" action="{{ route('service_logs.index') }}" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
@@ -74,8 +89,8 @@
                         @endphp
                         <span style="padding:2px 8px;background:{{ $c[0] }};color:{{ $c[1] }};border-radius:20px;font-size:.75rem;font-weight:500;text-transform:capitalize;">{{ $log->type }}</span>
                     </td>
-                    <td style="padding:11px 16px;color:#6b7280;">{{ $log->old_bandwidth ?? '—' }}</td>
-                    <td style="padding:11px 16px;color:#6b7280;">{{ $log->new_bandwidth ?? '—' }}</td>
+                    <td style="padding:11px 16px;color:#6b7280;">{{ formatBw($log->old_bandwidth) }}</td>
+                    <td style="padding:11px 16px;color:#6b7280;">{{ formatBw($log->new_bandwidth) }}</td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $log->request_date ? \Carbon\Carbon::parse($log->request_date)->format('d M Y') : '—' }}</td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $log->execute_date ? \Carbon\Carbon::parse($log->execute_date)->format('d M Y') : '—' }}</td>
                     <td style="padding:11px 16px;text-align:right;">

@@ -18,6 +18,8 @@ class UpdateUpstreamRequest extends FormRequest
     {
         return [
             'peer_name' => 'required|string|max:255',
+            'provider' => 'nullable|string|max:255',
+            'asn' => 'nullable|string|max:255',
             'capacity' => 'nullable|string|max:255',
             'location_id' => 'required|exists:locations,id',
         ];

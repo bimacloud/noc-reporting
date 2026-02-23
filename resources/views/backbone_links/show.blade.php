@@ -13,7 +13,23 @@
     <div style="max-width:640px;">
         <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);">
             <dl style="display:grid;grid-template-columns:160px 1fr;gap:0;">
-                @foreach([['Node A',$backboneLink->node_a],['Node B',$backboneLink->node_b],['Provider',$backboneLink->provider??'—'],['Media',$backboneLink->media??'—'],['Capacity',$backboneLink->capacity??'—'],['Created',$backboneLink->created_at->format('d M Y')]] as [$l,$v])
+                @php
+                    $details = [
+                        ['Node A', $backboneLink->node_a],
+                        ['Node B', $backboneLink->node_b],
+                    ];
+                    if ($backboneLink->node_c) array_push($details, ['Node C', $backboneLink->node_c]);
+                    if ($backboneLink->node_d) array_push($details, ['Node D', $backboneLink->node_d]);
+                    if ($backboneLink->node_e) array_push($details, ['Node E', $backboneLink->node_e]);
+
+                    array_push($details, 
+                        ['Provider', $backboneLink->provider ?? '—'],
+                        ['Media', $backboneLink->media ?? '—'],
+                        ['Capacity', $backboneLink->capacity ?? '—'],
+                        ['Created', $backboneLink->created_at->format('d M Y')]
+                    );
+                @endphp
+                @foreach($details as [$l,$v])
                 <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;border-bottom:1px solid #f3f4f6;">{{ $l }}</dt>
                 <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">{{ $v }}</dd>
                 @endforeach

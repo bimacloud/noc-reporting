@@ -22,10 +22,10 @@
     $activeDevices = \App\Models\Device::where('status', 'active')->count();
 
     // Check active group for auto-expand on load
-    $masterActive   = request()->routeIs('locations.*','devices.*','customers.*','resellers.*','backbone_links.*','upstreams.*','site-groups.*','sites.*','netbox.sync.logs*');
+    $masterActive   = request()->routeIs('locations.*','devices.*','customers.*','resellers.*','backbone_links.*','upstreams.*','site-groups.*','sites.*','netbox.sync.logs*','providers.*');
     $monitorActive  = request()->routeIs('device_reports.*','backbone_incidents.*','upstream_reports.*');
     $incidentActive = request()->routeIs('customer_incidents.*');
-    $serviceActive  = request()->routeIs('service_logs.*');
+    $serviceActive  = request()->routeIs('service_logs.*', 'backbone_logs.*');
 @endphp
 
 {{-- Brand --}}
@@ -134,6 +134,10 @@
                 <svg class="nav-sub-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
                 Upstreams
             </a>
+            <a href="{{ route('providers.index') }}" class="nav-subitem {{ request()->routeIs('providers.*') ? 'active' : '' }}">
+                <svg class="nav-sub-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Providers / NAPs
+            </a>
         </div>
     </div>
     @endif
@@ -217,7 +221,11 @@
         <div x-show="open" x-collapse>
             <a href="{{ route('service_logs.index') }}" class="nav-subitem {{ request()->routeIs('service_logs.*') ? 'active' : '' }}">
                 <svg class="nav-sub-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                Activation / Upgrade
+                Customer Service Log
+            </a>
+            <a href="{{ route('backbone_logs.index') }}" class="nav-subitem {{ request()->routeIs('backbone_logs.*') ? 'active' : '' }}">
+                <svg class="nav-sub-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                Backbone Capacity
             </a>
         </div>
     </div>

@@ -21,17 +21,29 @@ class DashboardController extends Controller
         $daysInMonth = $now->daysInMonth;
         $totalMinutesInMonth = $daysInMonth * 24 * 60;
 
-        // 1. Stats for Current Month
-        $totalIncidents = CustomerIncident::whereMonth('incident_date', $month)
+        $customerIncidentsCount = CustomerIncident::whereMonth('incident_date', $month)
             ->whereYear('incident_date', $year)
             ->count();
 
-        $totalDowntime = CustomerIncident::whereMonth('incident_date', $month)
+        $backboneIncidentsCount = \App\Models\BackboneIncident::whereMonth('incident_date', $month)
+            ->whereYear('incident_date', $year)
+            ->count();
+
+        $totalIncidents = $customerIncidentsCount + $backboneIncidentsCount;
+
+        $customerDowntime = CustomerIncident::whereMonth('incident_date', $month)
             ->whereYear('incident_date', $year)
             ->sum('duration');
 
+        $backboneDowntime = \App\Models\BackboneIncident::whereMonth('incident_date', $month)
+            ->whereYear('incident_date', $year)
+            ->sum('duration');
+
+        $totalDowntime = $customerDowntime + $backboneDowntime;
+
+        // Ensure SLA respects combined downtime
         $slaPercentage = $totalMinutesInMonth > 0 
-            ? (($totalMinutesInMonth - $totalDowntime) / $totalMinutesInMonth) * 100 
+            ? max(0, (($totalMinutesInMonth - $totalDowntime) / $totalMinutesInMonth) * 100)
             : 100;
 
         $totalActivations = ServiceLog::where('type', 'activation')
@@ -39,50 +51,64 @@ class DashboardController extends Controller
             ->whereYear('request_date', $year)
             ->count();
 
+        $totalUpgrades = ServiceLog::where('type', 'upgrade')
+            ->whereMonth('request_date', $month)
+            ->whereYear('request_date', $year)
+            ->count();
+
+        $totalDowngrades = ServiceLog::where('type', 'downgrade')
+            ->whereMonth('request_date', $month)
+            ->whereYear('request_date', $year)
+            ->count();
+
         // 2. Charts Data
         $incidentFilter = request('incident_filter', 'weekly');
-        $incidentQuery = CustomerIncident::query();
+        
+        $cQuery = CustomerIncident::query();
+        $bQuery = \App\Models\BackboneIncident::query();
+        
         $incidentsChartData = [];
 
         if ($incidentFilter === 'daily') {
-            // Daily this month
-            $incidentsChartData = $incidentQuery->whereMonth('incident_date', $month)
-                ->whereYear('incident_date', $year)
-                ->get()
-                ->groupBy(function ($incident) {
-                    return Carbon::parse($incident->incident_date)->format('d (D)'); 
-                })
-                ->map->count()->sortKeys();
+            $cData = $cQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            $bData = $bQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            
+            $merged = $cData->concat($bData)->groupBy(function ($inc) {
+                return Carbon::parse($inc->incident_date)->format('d (D)'); 
+            })->map->count()->sortKeys();
+            
+            $incidentsChartData = $merged;
         } elseif ($incidentFilter === 'monthly') {
-            // Monthly this year
-            $incidentsData = $incidentQuery->whereYear('incident_date', $year)
-                ->get()
-                ->groupBy(function ($incident) {
-                    return Carbon::parse($incident->incident_date)->format('M');
-                })
-                ->map->count();
-            // Sort correctly by month order
+            $cData = $cQuery->whereYear('incident_date', $year)->get();
+            $bData = $bQuery->whereYear('incident_date', $year)->get();
+            
+            $merged = $cData->concat($bData)->groupBy(function ($inc) {
+                return Carbon::parse($inc->incident_date)->format('M');
+            })->map->count();
+            
             $monthsOrder = ['Jan'=>1,'Feb'=>2,'Mar'=>3,'Apr'=>4,'May'=>5,'Jun'=>6,'Jul'=>7,'Aug'=>8,'Sep'=>9,'Oct'=>10,'Nov'=>11,'Dec'=>12];
-            $incidentsChartData = $incidentsData->sortBy(function($val, $key) use ($monthsOrder) {
+            $incidentsChartData = $merged->sortBy(function($val, $key) use ($monthsOrder) {
                 return $monthsOrder[$key] ?? 99;
             });
         } elseif ($incidentFilter === 'yearly') {
-            // Last 5 years
-            $incidentsChartData = $incidentQuery->whereYear('incident_date', '>=', $year - 4)
-                ->get()
-                ->groupBy(function ($incident) {
-                    return Carbon::parse($incident->incident_date)->format('Y');
-                })
-                ->map->count()->sortKeys();
+            $cData = $cQuery->whereYear('incident_date', '>=', $year - 4)->get();
+            $bData = $bQuery->whereYear('incident_date', '>=', $year - 4)->get();
+            
+            $merged = $cData->concat($bData)->groupBy(function ($inc) {
+                return Carbon::parse($inc->incident_date)->format('Y');
+            })->map->count()->sortKeys();
+            
+            $incidentsChartData = $merged;
         } else {
             // Default: Weekly (this month)
-            $incidentsChartData = $incidentQuery->whereMonth('incident_date', $month)
-                ->whereYear('incident_date', $year)
-                ->get()
-                ->groupBy(function ($incident) {
-                    return 'Week ' . Carbon::parse($incident->incident_date)->format('W');
-                })
-                ->map->count()->sortKeys();
+            $cData = $cQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            $bData = $bQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            
+            $merged = $cData->concat($bData)->groupBy(function ($inc) {
+                return 'Week ' . Carbon::parse($inc->incident_date)->format('W');
+            })->map->count()->sortKeys();
+            
+            $incidentsChartData = $merged;
         }
 
         // Downtime per Device
@@ -101,62 +127,42 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Activations Chart
+        // Service Changes Pie Chart
         $activationFilter = request('activation_filter', 'monthly');
-        $activationQuery = ServiceLog::where('type', 'activation');
-        $activationsChartData = [];
+        $sQuery = ServiceLog::query();
 
-        // Shared sort order for Monthly views
-        $monthsOrder = ['Jan'=>1,'Feb'=>2,'Mar'=>3,'Apr'=>4,'May'=>5,'Jun'=>6,'Jul'=>7,'Aug'=>8,'Sep'=>9,'Oct'=>10,'Nov'=>11,'Dec'=>12];
-
+        // Fetch all relevant data for the selected period
         if ($activationFilter === 'daily') {
-            // Daily this month
-            $activationsChartData = $activationQuery->whereMonth('request_date', $month)
-                ->whereYear('request_date', $year)
-                ->get()
-                ->groupBy(function ($log) {
-                    return Carbon::parse($log->request_date)->format('d (D)');
-                })
-                ->map->count()->sortKeys();
+            $sQuery->whereMonth('request_date', $month)->whereYear('request_date', $year);
+            // Limit to today if daily means today? Or entire month? The previous code used the entire month grouped by day. 
+            // If pie chart, we probably just want the total for the selected period. Let's keep it consistent: daily/weekly = this month, monthly = this year, yearly = 5 years.
         } elseif ($activationFilter === 'weekly') {
-            // Weekly this month
-            $activationsChartData = $activationQuery->whereMonth('request_date', $month)
-                ->whereYear('request_date', $year)
-                ->get()
-                ->groupBy(function ($log) {
-                    return 'Week ' . Carbon::parse($log->request_date)->format('W');
-                })
-                ->map->count()->sortKeys();
+            $sQuery->whereMonth('request_date', $month)->whereYear('request_date', $year);
         } elseif ($activationFilter === 'yearly') {
-            // Last 5 years
-            $activationsChartData = $activationQuery->whereYear('request_date', '>=', $year - 4)
-                ->get()
-                ->groupBy(function ($log) {
-                    return Carbon::parse($log->request_date)->format('Y');
-                })
-                ->map->count()->sortKeys();
-        } else {
-            // Default: Monthly (this year)
-            $activationsData = $activationQuery->whereYear('request_date', $year)
-                ->get()
-                ->groupBy(function ($log) {
-                    return Carbon::parse($log->request_date)->format('M');
-                })
-                ->map->count();
-            $activationsChartData = $activationsData->sortBy(function($val, $key) use ($monthsOrder) {
-                return $monthsOrder[$key] ?? 99;
-            });
+            $sQuery->whereYear('request_date', '>=', $year - 4);
+        } else { // monthly
+            $sQuery->whereYear('request_date', $year);
         }
+
+        $allData = $sQuery->get();
+
+        $pieActivations = $allData->where('type', 'activation')->count();
+        $pieUpgrades = $allData->where('type', 'upgrade')->count();
+        $pieDowngrades = $allData->where('type', 'downgrade')->count();
 
         return view('dashboard', compact(
             'totalIncidents',
             'totalDowntime',
             'slaPercentage',
             'totalActivations',
+            'totalUpgrades',
+            'totalDowngrades',
             'incidentsChartData',
             'incidentFilter',
             'downtimePerDevice',
-            'activationsChartData',
+            'pieActivations',
+            'pieUpgrades',
+            'pieDowngrades',
             'activationFilter'
         ));
     }

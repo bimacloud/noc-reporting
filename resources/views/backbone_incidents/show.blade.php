@@ -5,9 +5,14 @@
                 <a href="{{ route('backbone_incidents.index') }}" style="color:#6b7280;text-decoration:none;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></a>
                 <h1 style="font-size:1.125rem;font-weight:700;color:#111827;margin:0;">Backbone Incident #{{ $incident->id }}</h1>
             </div>
-            @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
-            <a href="{{ route('backbone_incidents.edit', $incident) }}" style="padding:7px 14px;background:#dbeafe;color:#1d4ed8;border-radius:6px;font-size:.875rem;text-decoration:none;">Edit</a>
-            @endif
+            <div style="display:flex;gap:6px;">
+                @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
+                    @if(empty($incident->resolve_date))
+                    <a href="{{ route('backbone_incidents.resolve_form', $incident) }}" style="padding:7px 14px;background:#10b981;color:#fff;border-radius:6px;font-size:.875rem;text-decoration:none;">Resolve</a>
+                    @endif
+                <a href="{{ route('backbone_incidents.edit', $incident) }}" style="padding:7px 14px;background:#dbeafe;color:#1d4ed8;border-radius:6px;font-size:.875rem;text-decoration:none;">Edit</a>
+                @endif
+            </div>
         </div>
     </x-slot>
     <div style="max-width:640px;">
@@ -28,8 +33,16 @@
                 <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;border-bottom:1px solid #f3f4f6;">Latency</dt>
                 <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">{{ $incident->latency ?? '—' }} ms</dd>
                 <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;border-bottom:1px solid #f3f4f6;">Duration</dt>
-                <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">{{ $incident->duration ?? 0 }} minutes</dd>
-                <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;">Description</dt>
+                <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">
+                    @if(empty($incident->resolve_date) && empty($incident->duration))
+                        <span style="color:#92400e;font-weight:600;">Ongoing</span>
+                    @else
+                        {{ $incident->duration ?? 0 }} minutes
+                    @endif
+                </dd>
+                <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;border-bottom:1px solid #f3f4f6;">Resolve Date</dt>
+                <dd style="font-size:.875rem;color:#111827;padding:10px 0;border-bottom:1px solid #f3f4f6;margin:0;">{{ $incident->resolve_date ? \Carbon\Carbon::parse($incident->resolve_date)->format('d M Y H:i') : '—' }}</dd>
+                <dt style="font-size:.8125rem;font-weight:500;color:#6b7280;padding:10px 0;">Reason / Notes</dt>
                 <dd style="font-size:.875rem;color:#111827;padding:10px 0;margin:0;">{{ $incident->description ?? '—' }}</dd>
             </dl>
         </div>

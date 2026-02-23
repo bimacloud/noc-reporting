@@ -15,6 +15,21 @@
                     <input type="text" name="peer_name" value="{{ old('peer_name', $upstream->peer_name) }}" required style="{{ $inp }}">
                     @error('peer_name') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
                 </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Provider / NAP</label>
+                        <select name="provider" style="{{ $inp }}">
+                            <option value="">— Select Provider —</option>
+                            @foreach($providers as $prov)
+                                <option value="{{ $prov->name }}" {{ old('provider', $upstream->provider) == $prov->name ? 'selected' : '' }}>{{ $prov->name }} ({{ $prov->type }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">ASN (AS Number)</label>
+                        <input type="text" name="asn" value="{{ old('asn', $upstream->asn) }}" style="{{ $inp }}" placeholder="e.g. AS12345">
+                    </div>
+                </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Capacity</label>

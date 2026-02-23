@@ -8,7 +8,7 @@ class Upstream extends Model
 {
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
 
-    protected $fillable = ['peer_name', 'capacity', 'location_id'];
+    protected $fillable = ['peer_name', 'capacity', 'location_id', 'provider', 'asn'];
 
     public function location()
     {

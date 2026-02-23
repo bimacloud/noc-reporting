@@ -15,7 +15,7 @@ class SiteGroupController extends Controller
     {
         $siteGroups = SiteGroup::withCount('sites')
                                ->orderBy('name')
-                               ->paginate(50);
+                               ->get();
 
         return view('site-groups.index', compact('siteGroups'));
     }

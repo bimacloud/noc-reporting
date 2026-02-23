@@ -19,9 +19,10 @@ class StoreBackboneIncidentRequest extends FormRequest
         return [
             'backbone_link_id' => 'required|exists:backbone_links,id',
             'incident_date' => 'required|date',
+            'resolve_date' => 'nullable|date|after_or_equal:incident_date',
             'latency' => 'nullable|string',
             'down_status' => 'required|boolean',
-            'duration' => 'required|integer|min:0',
+            'duration' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
         ];
     }

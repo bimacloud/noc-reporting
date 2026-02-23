@@ -16,13 +16,30 @@ class BackboneLinkController extends Controller
 
     public function index()
     {
-        $backboneLinks = BackboneLink::paginate(10);
+        $backboneLinks = BackboneLink::all();
+        // Enrich the link data with Site Group information based on the saved Site name
+        foreach ($backboneLinks as $link) {
+            $siteA = \App\Models\Site::where('name', $link->node_a)->with('siteGroup')->first();
+            $siteB = \App\Models\Site::where('name', $link->node_b)->with('siteGroup')->first();
+            $siteC = $link->node_c ? \App\Models\Site::where('name', $link->node_c)->with('siteGroup')->first() : null;
+            $siteD = $link->node_d ? \App\Models\Site::where('name', $link->node_d)->with('siteGroup')->first() : null;
+            $siteE = $link->node_e ? \App\Models\Site::where('name', $link->node_e)->with('siteGroup')->first() : null;
+
+            $link->site_group_a = $siteA?->siteGroup?->name;
+            $link->site_group_b = $siteB?->siteGroup?->name;
+            $link->site_group_c = $siteC?->siteGroup?->name;
+            $link->site_group_d = $siteD?->siteGroup?->name;
+            $link->site_group_e = $siteE?->siteGroup?->name;
+        }
+
         return view('backbone_links.index', compact('backboneLinks'));
     }
 
     public function create()
     {
-        return view('backbone_links.create');
+        $sites = \App\Models\Site::with('siteGroup')->orderBy('name')->get();
+        $providers = \App\Models\Provider::orderBy('name')->get();
+        return view('backbone_links.create', compact('sites', 'providers'));
     }
 
     public function store(StoreBackboneLinkRequest $request)
@@ -38,7 +55,9 @@ class BackboneLinkController extends Controller
 
     public function edit(BackboneLink $backboneLink)
     {
-        return view('backbone_links.edit', compact('backboneLink'));
+        $sites = \App\Models\Site::with('siteGroup')->orderBy('name')->get();
+        $providers = \App\Models\Provider::orderBy('name')->get();
+        return view('backbone_links.edit', compact('backboneLink', 'sites', 'providers'));
     }
 
     public function update(UpdateBackboneLinkRequest $request, BackboneLink $backboneLink)

@@ -16,7 +16,7 @@
     </x-slot>
 
     {{-- Stats Cards --}}
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
 
         {{-- Incidents --}}
         <a href="{{ route('customer_incidents.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
@@ -76,8 +76,36 @@
                 </svg>
             </div>
             <div>
-                <p style="font-size:.7rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;">New Activations</p>
+                <p style="font-size:.7rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;">Customer Activations</p>
                 <p style="font-size:1.75rem;font-weight:700;color:#2563eb;margin:0;line-height:1.1;">{{ $totalActivations }}</p>
+                <p style="font-size:.7rem;color:#d1d5db;margin:2px 0 0;">This month →</p>
+            </div>
+        </a>
+
+        {{-- Upgrades --}}
+        <a href="{{ route('service_logs.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+            <div style="width:48px;height:48px;background:#cffafe;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg style="width:24px;height:24px;color:#0891b2;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+            </div>
+            <div>
+                <p style="font-size:.7rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;">Service Upgrades</p>
+                <p style="font-size:1.75rem;font-weight:700;color:#0e7490;margin:0;line-height:1.1;">{{ $totalUpgrades }}</p>
+                <p style="font-size:.7rem;color:#d1d5db;margin:2px 0 0;">This month →</p>
+            </div>
+        </a>
+
+        {{-- Downgrades --}}
+        <a href="{{ route('service_logs.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+            <div style="width:48px;height:48px;background:#f3f4f6;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg style="width:24px;height:24px;color:#4b5563;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </div>
+            <div>
+                <p style="font-size:.7rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;">Service Downgrades</p>
+                <p style="font-size:1.75rem;font-weight:700;color:#374151;margin:0;line-height:1.1;">{{ $totalDowngrades }}</p>
                 <p style="font-size:.7rem;color:#d1d5db;margin:2px 0 0;">This month →</p>
             </div>
         </a>
@@ -93,7 +121,7 @@
                     <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                     </svg>
-                    Incidents
+                    Incidents (Customer & Backbone)
                 </h3>
                 <form method="GET" action="{{ route('dashboard') }}">
                     <input type="hidden" name="activation_filter" value="{{ $activationFilter }}">
@@ -116,7 +144,7 @@
                     <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Activations
+                    Service Changes (Act, Upg, Dwn)
                 </h3>
                 <form method="GET" action="{{ route('dashboard') }}">
                     <input type="hidden" name="incident_filter" value="{{ $incidentFilter }}">
@@ -263,27 +291,36 @@
             }
         });
 
-        // Activations Chart
-        const actData = @json($activationsChartData);
+        // Service Changes Pie Chart
+        const pAct = {{ $pieActivations ?? 0 }};
+        const pUpg = {{ $pieUpgrades ?? 0 }};
+        const pDwn = {{ $pieDowngrades ?? 0 }};
+
         new Chart(document.getElementById('activationsChart'), {
-            type: 'line',
+            type: 'doughnut',
             data: {
-                labels: Object.keys(actData).length ? Object.keys(actData) : ['No data'],
+                labels: ['Activations', 'Upgrades', 'Downgrades'],
                 datasets: [{
-                    label: 'Activations',
-                    data: Object.values(actData).length ? Object.values(actData) : [0],
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-                    borderWidth: 2, fill: true, tension: 0.4,
-                    pointBackgroundColor: 'rgba(59, 130, 246, 1)',
-                    pointRadius: 4
+                    data: [pAct, pUpg, pDwn],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)', // blue
+                        'rgba(8, 145, 178, 0.8)',  // cyan
+                        'rgba(107, 114, 128, 0.8)' // gray
+                    ],
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+                cutout: '65%',
+                plugins: { 
+                    legend: { 
+                        display: true, 
+                        position: 'right', 
+                        labels: { boxWidth: 12, usePointStyle: true, font: { size: 12 } } 
+                    } 
+                }
             }
         });
 

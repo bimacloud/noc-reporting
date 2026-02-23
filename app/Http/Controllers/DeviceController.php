@@ -16,9 +16,17 @@ class DeviceController extends Controller
         $this->middleware('role:admin,noc')->only(['create', 'store', 'edit', 'update', 'destroy']);
     }
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $devices = Device::with(['location', 'deviceType'])->paginate(10);
+        $query = Device::with(['location', 'deviceType']);
+
+        if ($request->has('site_id')) {
+            $query->whereHas('location', function ($q) use ($request) {
+                $q->where('site_id', $request->input('site_id'));
+            });
+        }
+
+        $devices = $query->get();
         return view('devices.index', compact('devices'));
     }
 

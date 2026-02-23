@@ -43,7 +43,7 @@
 
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;">
         <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;text-align:left;">
+            <table id="devicesTable" style="width:100%;border-collapse:collapse;text-align:left;">
                 <thead style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <tr>
                         <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Name</th>
@@ -56,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody style="divide-y:1px solid #e5e7eb;">
-                    @forelse($devices as $device)
+                    @foreach($devices as $device)
                     <tr style="hover:bg-slate-50">
                         <td style="padding:10px 16px;">
                             <a href="{{ route('devices.show', $device) }}" style="color:#2563eb;font-weight:500;text-decoration:none;">{{ $device->name }}</a>
@@ -87,16 +87,38 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" style="padding:24px;text-align:center;color:#6b7280;font-size:.875rem;">No devices found.</td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        <div style="padding:12px 16px;border-top:1px solid #e5e7eb;">
-            {{ $devices->links() }}
-        </div>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; font-size: 0.875rem; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #059669; color: #fff !important; border-radius: 4px; border: 1px solid #059669;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#devicesTable').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "No devices found."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 6 }
+                ]
+            });
+        });
+    </script>
 </x-app-layout>

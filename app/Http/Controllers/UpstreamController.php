@@ -24,7 +24,8 @@ class UpstreamController extends Controller
     public function create()
     {
         $locations = Location::all();
-        return view('upstreams.create', compact('locations'));
+        $providers = \App\Models\Provider::orderBy('name')->get();
+        return view('upstreams.create', compact('locations', 'providers'));
     }
 
     public function store(StoreUpstreamRequest $request)
@@ -41,7 +42,8 @@ class UpstreamController extends Controller
     public function edit(Upstream $upstream)
     {
         $locations = Location::all();
-        return view('upstreams.edit', compact('upstream', 'locations'));
+        $providers = \App\Models\Provider::orderBy('name')->get();
+        return view('upstreams.edit', compact('upstream', 'locations', 'providers'));
     }
 
     public function update(UpdateUpstreamRequest $request, Upstream $upstream)

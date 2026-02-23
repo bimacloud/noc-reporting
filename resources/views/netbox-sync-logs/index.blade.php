@@ -66,12 +66,12 @@
             @if($type || $status)
             <a href="{{ route('netbox.sync.logs') }}" style="padding:7px 12px;background:#f3f4f6;color:#6b7280;border-radius:6px;font-size:.8125rem;text-decoration:none;border:1px solid #e5e7eb;">✕ Reset</a>
             @endif
-            <span style="margin-left:auto;font-size:.75rem;color:#9ca3af;">{{ $logs->total() }} baris</span>
+            <span style="margin-left:auto;font-size:.75rem;color:#9ca3af;">{{ $logs->count() }} baris</span>
         </form>
 
         {{-- Table --}}
         <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:.8125rem;">
+        <table id="syncLogsTable" style="width:100%;border-collapse:collapse;font-size:.8125rem;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="text-align:left;padding:9px 16px;font-weight:600;color:#6b7280;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Waktu</th>
@@ -82,7 +82,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($logs as $log)
+                @foreach($logs as $log)
                 <tr style="border-bottom:1px solid #f3f4f6;{{ $log->status === 'error' ? 'background:#fff9f9;' : '' }}transition:background .1s;"
                     onmouseover="this.style.background='{{ $log->status === 'error' ? '#fff1f1' : '#f9fafb' }}'"
                     onmouseout="this.style.background='{{ $log->status === 'error' ? '#fff9f9' : '' }}'">
@@ -124,25 +124,37 @@
                         @endif
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="padding:40px;text-align:center;color:#9ca3af;">
-                        <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;color:#d1d5db;">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        Belum ada log. Jalankan sync dari menu Site Groups / Sites / Locations / Devices.
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
         </div>
 
-        {{-- Pagination --}}
-        @if($logs->hasPages())
-        <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">
-            {{ $logs->links() }}
-        </div>
-        @endif
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; font-size: 0.875rem; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #2563eb; color: #fff !important; border-radius: 4px; border: 1px solid #2563eb;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#syncLogsTable').DataTable({
+                "pageLength": 10,
+                "order": [[0, "desc"]], /* Default sort by Waktu Descending */
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "Belum ada log. Jalankan sync dari menu terkait."
+                }
+            });
+        });
+    </script>
 </x-app-layout>

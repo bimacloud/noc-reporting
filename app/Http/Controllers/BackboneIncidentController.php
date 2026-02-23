@@ -57,7 +57,17 @@ class BackboneIncidentController extends Controller
      */
     public function store(StoreBackboneIncidentRequest $request)
     {
-        BackboneIncident::create($request->validated());
+        $data = $request->validated();
+        
+        if (empty($data['duration']) && !empty($data['resolve_date'])) {
+            $incidentDate = \Carbon\Carbon::parse($data['incident_date']);
+            $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+            $data['duration'] = $incidentDate->diffInMinutes($resolveDate);
+        } elseif (empty($data['duration'])) {
+            $data['duration'] = 0;
+        }
+
+        BackboneIncident::create($data);
 
         return redirect()->route('backbone_incidents.index')
             ->with('success', 'Backbone incident created successfully.');
@@ -68,7 +78,7 @@ class BackboneIncidentController extends Controller
      */
     public function show(BackboneIncident $backboneIncident)
     {
-        return view('backbone_incidents.show', compact('backboneIncident'));
+        return view('backbone_incidents.show', ['incident' => $backboneIncident]);
     }
 
     /**
@@ -85,7 +95,17 @@ class BackboneIncidentController extends Controller
      */
     public function update(UpdateBackboneIncidentRequest $request, BackboneIncident $backboneIncident)
     {
-        $backboneIncident->update($request->validated());
+        $data = $request->validated();
+        
+        if (empty($data['duration']) && !empty($data['resolve_date'])) {
+            $incidentDate = \Carbon\Carbon::parse($data['incident_date']);
+            $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+            $data['duration'] = $incidentDate->diffInMinutes($resolveDate);
+        } elseif (empty($data['duration'])) {
+            $data['duration'] = 0;
+        }
+
+        $backboneIncident->update($data);
 
         return redirect()->route('backbone_incidents.index')
             ->with('success', 'Backbone incident updated successfully.');
@@ -100,5 +120,31 @@ class BackboneIncidentController extends Controller
 
         return redirect()->route('backbone_incidents.index')
             ->with('success', 'Backbone incident deleted successfully.');
+    }
+
+    public function resolveForm(BackboneIncident $incident)
+    {
+        return view('backbone_incidents.resolve', compact('incident'));
+    }
+
+    public function resolve(Request $request, BackboneIncident $incident)
+    {
+        $data = $request->validate([
+            'resolve_date' => 'required|date|after_or_equal:incident_date',
+            'notes' => 'required|string',
+        ]);
+
+        $incidentDate = \Carbon\Carbon::parse($incident->incident_date);
+        $resolveDate = \Carbon\Carbon::parse($data['resolve_date']);
+        $duration = $incidentDate->diffInMinutes($resolveDate);
+
+        $incident->update([
+            'resolve_date' => $data['resolve_date'],
+            'notes' => $data['notes'],
+            'duration' => $duration,
+        ]);
+
+        return redirect()->route('backbone_incidents.index')
+            ->with('success', 'Backbone incident resolved successfully.');
     }
 }

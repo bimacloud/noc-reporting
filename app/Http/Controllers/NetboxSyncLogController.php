@@ -21,8 +21,7 @@ class NetboxSyncLogController extends Controller
             ->when($type,   fn($q) => $q->where('entity_type', $type))
             ->when($status, fn($q) => $q->where('status', $status))
             ->orderByDesc('synced_at')
-            ->paginate(50)
-            ->withQueryString();
+            ->get();
 
         // Summary stats
         $stats = NetboxSyncLog::selectRaw('entity_type, status, count(*) as total')

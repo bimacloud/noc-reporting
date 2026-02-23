@@ -37,7 +37,7 @@
     </x-slot>
 
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);">
-        <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <table id="locationsTable" style="width:100%;border-collapse:collapse;font-size:.875rem;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">#</th>
@@ -48,9 +48,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($locations as $location)
+                @foreach($locations as $location)
                 <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
-                    <td style="padding:11px 16px;color:#9ca3af;">{{ $locations->firstItem() + $loop->index }}</td>
+                    <td style="padding:11px 16px;color:#9ca3af;">{{ $loop->iteration }}</td>
                     <td style="padding:11px 16px;color:#111827;font-weight:500;">{{ $location->name }}</td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $location->address ?? '—' }}</td>
                     <td style="padding:11px 16px;">
@@ -69,24 +69,39 @@
                         </div>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="padding:40px 16px;text-align:center;color:#9ca3af;font-size:.875rem;">
-                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" style="margin:0 auto 8px;display:block;color:#d1d5db;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        No locations found.
-                        @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
-                        <a href="{{ route('locations.create') }}" style="color:#2563eb;text-decoration:none;">Add the first one</a>
-                        @endif
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
 
-        @if($locations->hasPages())
-        <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">
-            {{ $locations->links() }}
-        </div>
-        @endif
+        </table>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; font-size: 0.875rem; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #0d9488; color: #fff !important; border-radius: 4px; border: 1px solid #0d9488;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#locationsTable').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "No locations found."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 4 } /* Disable sorting on Actions column */
+                ]
+            });
+        });
+    </script>
 </x-app-layout>

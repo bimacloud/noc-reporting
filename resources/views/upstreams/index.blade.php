@@ -20,6 +20,8 @@
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">#</th>
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Peer Name</th>
+                    <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Provider / NAP</th>
+                    <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">ASN</th>
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Capacity</th>
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Location</th>
                     <th style="padding:11px 16px;text-align:right;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Actions</th>
@@ -30,6 +32,14 @@
                 <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
                     <td style="padding:11px 16px;color:#9ca3af;">{{ $upstreams->firstItem() + $loop->index }}</td>
                     <td style="padding:11px 16px;color:#111827;font-weight:500;">{{ $upstream->peer_name }}</td>
+                    <td style="padding:11px 16px;color:#6b7280;">{{ $upstream->provider ?? '—' }}</td>
+                    <td style="padding:11px 16px;color:#6b7280;">
+                        @if($upstream->asn)
+                            <span style="background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:4px;font-size:.7rem;font-weight:600;letter-spacing:.05em;">{{ $upstream->asn }}</span>
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $upstream->capacity }}</td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $upstream->location->name ?? '—' }}</td>
                     <td style="padding:11px 16px;text-align:right;">
@@ -46,7 +56,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" style="padding:40px 16px;text-align:center;color:#9ca3af;">No upstreams found.</td></tr>
+                <tr><td colspan="7" style="padding:40px 16px;text-align:center;color:#9ca3af;">No upstreams found.</td></tr>
                 @endforelse
             </tbody>
         </table>

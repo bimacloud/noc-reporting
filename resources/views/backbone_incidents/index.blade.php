@@ -64,11 +64,20 @@
                             <span style="padding:2px 8px;background:#d1fae5;color:#065f46;border-radius:20px;font-size:.75rem;font-weight:500;">Up</span>
                         @endif
                     </td>
-                    <td style="padding:11px 16px;color:#6b7280;">{{ $incident->duration ?? 0 }} min</td>
+                    <td style="padding:11px 16px;color:#6b7280;">
+                        @if(empty($incident->resolve_date) && empty($incident->duration))
+                            <span style="padding:2px 8px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:.75rem;font-weight:500;">Ongoing</span>
+                        @else
+                            {{ $incident->duration ?? 0 }} min
+                        @endif
+                    </td>
                     <td style="padding:11px 16px;text-align:right;">
                         <div style="display:inline-flex;gap:6px;">
                             <a href="{{ route('backbone_incidents.show', $incident) }}" style="padding:5px 10px;background:#f3f4f6;color:#374151;border-radius:5px;font-size:.8125rem;text-decoration:none;">View</a>
                             @if(Auth::user()->isAdmin() || Auth::user()->isNoc())
+                                @if(empty($incident->resolve_date))
+                                <a href="{{ route('backbone_incidents.resolve_form', $incident) }}" style="padding:5px 10px;background:#10b981;color:#fff;border-radius:5px;font-size:.8125rem;text-decoration:none;">Resolve</a>
+                                @endif
                             <a href="{{ route('backbone_incidents.edit', $incident) }}" style="padding:5px 10px;background:#dbeafe;color:#1d4ed8;border-radius:5px;font-size:.8125rem;text-decoration:none;">Edit</a>
                             <form method="POST" action="{{ route('backbone_incidents.destroy', $incident) }}" onsubmit="return confirm('Delete?');" style="display:inline;">
                                 @csrf @method('DELETE')

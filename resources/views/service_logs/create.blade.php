@@ -14,10 +14,10 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Customer *</label>
-                        <select name="customer_id" required style="{{ $inp }}">
-                            <option value="">— Select Customer —</option>
+                        <select name="customer_id" required style="{{ $inp }}" onchange="document.getElementById('old_bandwidth').value = this.options[this.selectedIndex].getAttribute('data-bandwidth') || '';">
+                            <option value="" data-bandwidth="">— Select Customer —</option>
                             @foreach($customers as $cust)
-                                <option value="{{ $cust->id }}" {{ old('customer_id')==$cust->id?'selected':'' }}>{{ $cust->name }}</option>
+                                <option value="{{ $cust->id }}" data-bandwidth="{{ $cust->bandwidth }}" {{ old('customer_id')==$cust->id?'selected':'' }}>{{ $cust->name }}</option>
                             @endforeach
                         </select>
                         @error('customer_id') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
@@ -37,7 +37,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Old Bandwidth</label>
-                        <input type="text" name="old_bandwidth" value="{{ old('old_bandwidth') }}" style="{{ $inp }}" placeholder="e.g. 50 Mbps">
+                        <input type="text" name="old_bandwidth" id="old_bandwidth" value="{{ old('old_bandwidth') }}" style="{{ $inp }}" placeholder="e.g. 50 Mbps">
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">New Bandwidth</label>

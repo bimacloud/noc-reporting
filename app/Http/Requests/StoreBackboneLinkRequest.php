@@ -19,6 +19,9 @@ class StoreBackboneLinkRequest extends FormRequest
         return [
             'node_a' => 'required|string|max:255',
             'node_b' => 'required|string|max:255',
+            'node_c' => 'nullable|string|max:255',
+            'node_d' => 'nullable|string|max:255',
+            'node_e' => 'nullable|string|max:255',
             'provider' => 'nullable|string|max:255',
             'media' => 'nullable|string|max:255',
             'capacity' => 'nullable|string|max:255',

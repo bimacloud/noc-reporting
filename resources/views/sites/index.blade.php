@@ -39,12 +39,12 @@
         <div style="display:flex;gap:0;border-bottom:1px solid #f3f4f6;">
             <div style="padding:14px 20px;border-right:1px solid #f3f4f6;">
                 <p style="font-size:.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin:0;">Total Sites</p>
-                <p style="font-size:1.25rem;font-weight:700;color:#111827;margin:0;">{{ $sites->total() }}</p>
+                <p style="font-size:1.25rem;font-weight:700;color:#111827;margin:0;">{{ $sites->count() }}</p>
             </div>
         </div>
 
         {{-- Table --}}
-        <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <table id="sitesTable" style="width:100%;border-collapse:collapse;font-size:.875rem;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="text-align:left;padding:10px 16px;font-weight:600;color:#6b7280;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Nama Site</th>
@@ -57,7 +57,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($sites as $site)
+                @foreach($sites as $site)
                 <tr style="border-bottom:1px solid #f3f4f6;transition:background .1s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
                     <td style="padding:12px 16px;">
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -88,14 +88,14 @@
                     </td>
                     <td style="padding:12px 16px;text-align:center;">
                         @if(($site->locations_count ?? 0) > 0)
-                            <a href="{{ route('locations.index') }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#ccfbf1;color:#0d9488;font-size:.75rem;font-weight:700;border-radius:50%;text-decoration:none;">{{ $site->locations_count }}</a>
+                            <a href="{{ route('locations.index', ['site_id' => $site->id]) }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#ccfbf1;color:#0d9488;font-size:.75rem;font-weight:700;border-radius:50%;text-decoration:none;">{{ $site->locations_count }}</a>
                         @else
                             <span style="color:#d1d5db;">0</span>
                         @endif
                     </td>
                     <td style="padding:12px 16px;text-align:center;">
                         @if(($site->devices_count ?? 0) > 0)
-                            <a href="{{ route('devices.index') }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#dcfce7;color:#16a34a;font-size:.75rem;font-weight:700;border-radius:50%;text-decoration:none;">{{ $site->devices_count }}</a>
+                            <a href="{{ route('devices.index', ['site_id' => $site->id]) }}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#dcfce7;color:#16a34a;font-size:.75rem;font-weight:700;border-radius:50%;text-decoration:none;">{{ $site->devices_count }}</a>
                         @else
                             <span style="color:#d1d5db;">0</span>
                         @endif
@@ -110,24 +110,35 @@
                         </span>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="7" style="padding:40px;text-align:center;color:#9ca3af;">
-                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;color:#d1d5db;">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                        </svg>
-                        Belum ada data. Klik <strong>Sync Sites</strong> untuk mengambil data dari NetBox.
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
 
-        {{-- Pagination --}}
-        @if($sites->hasPages())
-        <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">
-            {{ $sites->links() }}
-        </div>
-        @endif
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; font-size: 0.875rem; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #f59e0b; color: #fff !important; border-radius: 4px; border: 1px solid #f59e0b;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#sitesTable').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "Belum ada data. Klik Sync Sites untuk mengambil data dari NetBox."
+                }
+            });
+        });
+    </script>
 </x-app-layout>

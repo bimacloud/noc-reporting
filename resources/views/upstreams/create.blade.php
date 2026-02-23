@@ -17,6 +17,21 @@
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Provider / NAP</label>
+                        <select name="provider" style="{{ $inp }}">
+                            <option value="">— Select Provider —</option>
+                            @foreach($providers as $prov)
+                                <option value="{{ $prov->name }}" {{ old('provider') == $prov->name ? 'selected' : '' }}>{{ $prov->name }} ({{ $prov->type }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">ASN (AS Number)</label>
+                        <input type="text" name="asn" value="{{ old('asn') }}" style="{{ $inp }}" placeholder="e.g. AS12345">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Capacity</label>
                         <input type="text" name="capacity" value="{{ old('capacity') }}" style="{{ $inp }}" placeholder="e.g. 10 Gbps">
                     </div>

@@ -25,9 +25,20 @@
         </div>
     </x-slot>
 
+    @if(session('import_errors'))
+    <div style="margin-bottom:20px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:12px 16px;border-radius:10px;">
+        <p style="font-weight:600;margin:0 0 8px;font-size:0.875rem;">Import Errors:</p>
+        <ul style="margin:0;padding-left:20px;font-size:0.75rem;">
+            @foreach(session('import_errors') as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;">
         <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;text-align:left;">
+            <table id="customersTable" style="width:100%;border-collapse:collapse;text-align:left;">
                 <thead style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <tr>
                         <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Name</th>
@@ -40,13 +51,23 @@
                     </tr>
                 </thead>
                 <tbody style="divide-y:1px solid #e5e7eb;">
-                    @forelse($customers as $customer)
+                    @foreach($customers as $customer)
                     <tr style="hover:bg-slate-50">
                         <td style="padding:10px 16px;">
                             <a href="{{ route('customers.show', $customer) }}" style="color:#2563eb;font-weight:500;text-decoration:none;">{{ $customer->name }}</a>
                         </td>
                         <td style="padding:10px 16px;font-size:.875rem;color:#111827;">{{ $customer->serviceType->name ?? '—' }}</td>
-                        <td style="padding:10px 16px;font-size:.875rem;color:#111827;">{{ $customer->bandwidth }}</td>
+                        <td style="padding:10px 16px;font-size:.875rem;color:#111827;">
+                            @if(is_numeric($customer->bandwidth))
+                                @if($customer->bandwidth >= 1000)
+                                    {{ $customer->bandwidth / 1000 }} Gbps
+                                @else
+                                    {{ $customer->bandwidth }} Mbps
+                                @endif
+                            @else
+                                {{ $customer->bandwidth }}
+                            @endif
+                        </td>
                         <td style="padding:10px 16px;font-size:.875rem;color:#111827;">{{ Str::limit($customer->address, 30) }}</td>
                         <td style="padding:10px 16px;">
                             @if($customer->status === 'active')
@@ -58,7 +79,11 @@
                             @endif
                         </td>
                         <td style="padding:10px 16px;font-size:.75rem;color:#6b7280;">
-                            {{ $customer->registration_date ? \Carbon\Carbon::parse($customer->registration_date)->format('d M Y') : $customer->created_at->format('d M Y') }}
+                            @if($customer->registration_date)
+                                {{ \Carbon\Carbon::parse($customer->registration_date)->format('d M Y') }}
+                            @else
+                                <span style="font-style:italic;color:#9ca3af;">Not Set</span>
+                            @endif
                         </td>
                         <td style="padding:10px 16px;text-align:right;">
                             <div style="display:flex;justify-content:flex-end;gap:8px;">
@@ -73,16 +98,38 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" style="padding:24px;text-align:center;color:#6b7280;font-size:.875rem;">No customers found.</td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        <div style="padding:12px 16px;border-top:1px solid #e5e7eb;">
-            {{ $customers->links() }}
-        </div>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #2563eb; color: #fff !important; border-radius: 4px; border: 1px solid #2563eb;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#customersTable').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "No customers found."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 6 }
+                ]
+            });
+        });
+    </script>
 </x-app-layout>

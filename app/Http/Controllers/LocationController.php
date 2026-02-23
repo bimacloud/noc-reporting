@@ -19,9 +19,15 @@ class LocationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $locations = Location::paginate(10);
+        $query = Location::query();
+        
+        if ($request->has('site_id')) {
+            $query->where('site_id', $request->input('site_id'));
+        }
+
+        $locations = $query->get();
         return view('locations.index', compact('locations'));
     }
 

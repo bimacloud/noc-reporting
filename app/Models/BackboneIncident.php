@@ -11,6 +11,7 @@ class BackboneIncident extends Model
     protected $fillable = [
         'backbone_link_id',
         'incident_date',
+        'resolve_date',
         'latency',
         'down_status',
         'duration',
@@ -19,6 +20,7 @@ class BackboneIncident extends Model
 
     protected $casts = [
         'incident_date' => 'datetime',
+        'resolve_date' => 'datetime',
         'down_status' => 'boolean',
     ];
 

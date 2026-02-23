@@ -24,19 +24,27 @@
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Incident Date *</label>
-                        <input type="datetime-local" name="incident_date" value="{{ old('incident_date', now()->format('Y-m-d\TH:i')) }}" required style="{{ $inp }}">
+                        <input type="datetime-local" name="incident_date" id="incident_date" value="{{ old('incident_date', \Carbon\Carbon::now()->timezone('Asia/Jakarta')->format('Y-m-d\TH:i')) }}" required style="{{ $inp }}">
                         @error('incident_date') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
-                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Latency (ms)</label>
-                        <input type="number" name="latency" value="{{ old('latency') }}" min="0" step="0.01" style="{{ $inp }}">
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Resolve Date (Optional)</label>
+                        <input type="datetime-local" name="resolve_date" id="resolve_date" value="{{ old('resolve_date') }}" style="{{ $inp }}">
+                        @error('resolve_date') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Duration (min)</label>
-                        <input type="number" name="duration" value="{{ old('duration', 0) }}" min="0" style="{{ $inp }}">
+                        <input type="number" name="duration" id="duration" value="{{ old('duration') }}" min="0" placeholder="Auto-calculated if empty" style="{{ $inp }}">
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Latency (ms)</label>
+                        <input type="number" name="latency" value="{{ old('latency') }}" min="0" step="0.01" style="{{ $inp }}">
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Down?</label>
@@ -59,4 +67,28 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const incDate = document.getElementById('incident_date');
+            const resDate = document.getElementById('resolve_date');
+            const dur = document.getElementById('duration');
+
+            function calcDur() {
+                if (incDate.value && resDate.value) {
+                    const start = new Date(incDate.value);
+                    const end = new Date(resDate.value);
+                    if (end >= start) {
+                        const diffMins = Math.floor((end - start) / 60000);
+                        dur.value = diffMins;
+                    } else {
+                        dur.value = '';
+                    }
+                }
+            }
+
+            incDate.addEventListener('change', calcDur);
+            resDate.addEventListener('change', calcDur);
+        });
+    </script>
 </x-app-layout>
