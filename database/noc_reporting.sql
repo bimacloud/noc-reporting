@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 21 Feb 2026 pada 06.08
+-- Waktu pembuatan: 23 Feb 2026 pada 08.50
 -- Versi server: 10.4.27-MariaDB
 -- Versi PHP: 7.4.33
 
@@ -31,6 +31,7 @@ CREATE TABLE `backbone_incidents` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `backbone_link_id` bigint(20) UNSIGNED NOT NULL,
   `incident_date` datetime NOT NULL,
+  `resolve_date` datetime DEFAULT NULL,
   `latency` varchar(255) DEFAULT NULL,
   `down_status` tinyint(1) NOT NULL DEFAULT 0,
   `duration` int(11) NOT NULL DEFAULT 0,
@@ -43,10 +44,9 @@ CREATE TABLE `backbone_incidents` (
 -- Dumping data untuk tabel `backbone_incidents`
 --
 
-INSERT INTO `backbone_incidents` (`id`, `backbone_link_id`, `incident_date`, `latency`, `down_status`, `duration`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 1, '2026-02-10 07:03:14', '46ms', 0, 45, 'Sample incident', '2026-02-20 00:03:14', '2026-02-20 00:03:14'),
-(2, 1, '2026-02-15 07:03:14', '46ms', 0, 111, 'Sample incident', '2026-02-20 00:03:14', '2026-02-20 00:03:14'),
-(3, 1, '2026-01-24 07:03:14', '17ms', 0, 70, 'Sample incident', '2026-02-20 00:03:14', '2026-02-20 00:03:14');
+INSERT INTO `backbone_incidents` (`id`, `backbone_link_id`, `incident_date`, `resolve_date`, `latency`, `down_status`, `duration`, `notes`, `created_at`, `updated_at`) VALUES
+(4, 4, '2026-02-23 07:23:00', '2026-02-23 07:34:00', '12', 1, 11, 'Kabel putus', '2026-02-23 00:23:59', '2026-02-23 00:35:00'),
+(5, 4, '2026-02-23 14:38:00', '2026-02-23 14:39:00', NULL, 1, 1, 'looo', '2026-02-23 00:39:02', '2026-02-23 00:39:15');
 
 -- --------------------------------------------------------
 
@@ -58,6 +58,9 @@ CREATE TABLE `backbone_links` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `node_a` varchar(255) NOT NULL,
   `node_b` varchar(255) NOT NULL,
+  `node_c` varchar(255) DEFAULT NULL,
+  `node_d` varchar(255) DEFAULT NULL,
+  `node_e` varchar(255) DEFAULT NULL,
   `provider` varchar(255) DEFAULT NULL,
   `media` varchar(255) DEFAULT NULL,
   `capacity` varchar(255) DEFAULT NULL,
@@ -69,8 +72,35 @@ CREATE TABLE `backbone_links` (
 -- Dumping data untuk tabel `backbone_links`
 --
 
-INSERT INTO `backbone_links` (`id`, `node_a`, `node_b`, `provider`, `media`, `capacity`, `created_at`, `updated_at`) VALUES
-(1, 'POP Main', 'Data Center A', 'Self', 'FO', '10 Gbps', '2026-02-20 00:03:14', '2026-02-20 00:03:14');
+INSERT INTO `backbone_links` (`id`, `node_a`, `node_b`, `node_c`, `node_d`, `node_e`, `provider`, `media`, `capacity`, `created_at`, `updated_at`) VALUES
+(4, 'IDC3D', 'Banyumas', NULL, NULL, NULL, 'IFORTE', 'Fiber Optic', '1G', '2026-02-23 00:00:48', '2026-02-23 00:05:38');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `backbone_logs`
+--
+
+CREATE TABLE `backbone_logs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `backbone_link_id` bigint(20) UNSIGNED NOT NULL,
+  `type` enum('activation','deactivation','upgrade','downgrade') NOT NULL,
+  `old_capacity` varchar(255) DEFAULT NULL,
+  `new_capacity` varchar(255) DEFAULT NULL,
+  `request_date` date NOT NULL,
+  `execute_date` date DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `backbone_logs`
+--
+
+INSERT INTO `backbone_logs` (`id`, `backbone_link_id`, `type`, `old_capacity`, `new_capacity`, `request_date`, `execute_date`, `notes`, `created_at`, `updated_at`) VALUES
+(2, 4, 'upgrade', '2G', '3G', '2026-02-23', '2026-02-23', NULL, '2026-02-23 00:03:31', '2026-02-23 00:03:31'),
+(3, 4, 'downgrade', '3G', '1G', '2026-02-23', '2026-02-23', NULL, '2026-02-23 00:05:38', '2026-02-23 00:05:38');
 
 -- --------------------------------------------------------
 
@@ -113,6 +143,32 @@ CREATE TABLE `customers` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `customers`
+--
+
+INSERT INTO `customers` (`id`, `name`, `address`, `registration_date`, `service_type_id`, `bandwidth`, `status`, `created_at`, `updated_at`) VALUES
+(43, 'Yanto Slamet Riyadi', 'Purbayasa, Purbalingga', '2023-12-22', 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(44, 'Eri Febrianto', 'Kawunganten, Cilacap', NULL, 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-23 00:08:27'),
+(45, 'Muhammad Mujahidin', 'Kawunganten, Cilacap', NULL, 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-23 00:41:35'),
+(46, 'Sutarso Purnomo', 'Kawunganten, Cilacap', NULL, 5, '600', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(47, 'Yusuf Fathoni', 'Kawunganten, Cilacap', NULL, 5, '850', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(48, 'Aris Susanto', 'Kawunganten, Cilacap', NULL, 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(49, 'Ade Prabowo', 'Kawunganten, Cilacap', NULL, 5, '300', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(50, 'Edwin Wijayanto', 'Sidareja, Cilacap', NULL, 5, '1550', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(51, 'Edi Susilo Prasetyo', 'Karangpucung, Cilacap', NULL, 5, '650', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(52, 'Beni Wijaya', 'Susukan, Banjarnegara', NULL, 5, '150', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(53, 'Gus Ibnu', 'Kroya, Cilacap', '2026-06-24', 5, '500', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(54, 'Hendra Alexander', 'Cimanggu, Cilacap', NULL, 5, '500', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(55, 'M. Hasyim Asyarifudin', 'Belik. Kab Pemalang', '2026-06-08', 5, '300', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(56, 'Feber Rudi Lambok Nababan', 'Mrebet, Purbalingga', '2024-09-03', 5, '100', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(57, 'Rinto', 'Gandrungmangu, Cilacap', NULL, 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(58, 'Ahmad Mustaqim Udin', 'Kedungreja, Cilacap', NULL, 5, '150', 'active', '2026-02-22 22:12:42', '2026-02-22 22:35:58'),
+(59, 'Yogi', 'Karangpucung, Cilacap', NULL, 5, '500', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(60, 'IRIN', 'Karangpucung, Cilacap', NULL, 5, '250', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(61, 'INU', 'Karangpucung, Cilacap', NULL, 5, '600', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42'),
+(62, 'Woyo Pujiono', 'Susukan, Banjarnegara', NULL, 5, '1000', 'active', '2026-02-22 22:12:42', '2026-02-22 22:12:42');
 
 -- --------------------------------------------------------
 
@@ -353,7 +409,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (30, '2026_02_21_040004_add_site_id_to_devices', 4),
 (31, '2026_02_21_035534_create_netbox_sync_logs_table', 5),
 (32, '2026_02_21_035534_fix_location_id_nullable_in_devices', 5),
-(33, '2026_02_21_045748_add_registration_date_to_customers_table', 6);
+(33, '2026_02_21_045748_add_registration_date_to_customers_table', 6),
+(34, '2026_02_23_054510_add_node_c_d_e_to_backbone_links_table', 7),
+(35, '2026_02_23_055436_create_providers_table', 8),
+(36, '2026_02_23_061140_add_provider_and_asn_to_upstreams_table', 9),
+(37, '2026_02_23_065424_create_backbone_logs_table', 10),
+(38, '2026_02_23_072101_add_resolve_date_to_backbone_incidents_table', 11);
 
 -- --------------------------------------------------------
 
@@ -478,7 +539,56 @@ INSERT INTO `netbox_sync_logs` (`id`, `entity_type`, `netbox_id`, `entity_name`,
 (78, 'locations', 11, 'Sidareja', 'ok', 'Synced OK', NULL, '2026-02-20 21:56:02', '2026-02-20 21:56:02', '2026-02-20 21:56:02'),
 (79, 'locations', 13, 'Gandrungmanis', 'ok', 'Synced OK', NULL, '2026-02-20 21:56:02', '2026-02-20 21:56:02', '2026-02-20 21:56:02'),
 (80, 'locations', 12, 'Kedungreja', 'ok', 'Synced OK', NULL, '2026-02-20 21:56:02', '2026-02-20 21:56:02', '2026-02-20 21:56:02'),
-(81, 'locations', 16, 'Sudagaran', 'ok', 'Synced OK', NULL, '2026-02-20 21:56:02', '2026-02-20 21:56:02', '2026-02-20 21:56:02');
+(81, 'locations', 16, 'Sudagaran', 'ok', 'Synced OK', NULL, '2026-02-20 21:56:02', '2026-02-20 21:56:02', '2026-02-20 21:56:02'),
+(82, 'site_groups', 2, 'DACEN', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(83, 'site_groups', 4, 'POP', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(84, 'site_groups', 3, 'DACEN DIY', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(85, 'site_groups', 1, 'DACEN JAKARTA', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(86, 'site_groups', 8, 'POP-BANJARNEGARA', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(87, 'site_groups', 5, 'POP-BANYUMAS', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(88, 'site_groups', 9, 'POP-BREBES', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(89, 'site_groups', 6, 'POP-CILACAP', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(90, 'site_groups', 10, 'POP-PEMALANG', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(91, 'site_groups', 7, 'POP-PUBALINGGA', 'ok', 'Synced OK', NULL, '2026-02-22 21:49:50', '2026-02-22 21:49:50', '2026-02-22 21:49:50'),
+(92, 'devices', 22, 'CRS-309-KWT', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(93, 'devices', 21, 'CSS-PUS-BOJONG', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(94, 'devices', 20, 'CSS-PUS-SWD', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(95, 'devices', 3, 'IDC3D-AGG-DIST-1-C01-C1072', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(96, 'devices', 2, 'IDC3D-AGG-DIST-2-CCR2216', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(97, 'devices', 1, 'IDC3D-CNT-1-CCR2216', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(98, 'devices', 4, 'IDC3D-IPT-1-MIK-AI', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(99, 'devices', 5, 'IDC3D-PIK-SWC01-C518', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(100, 'devices', 6, 'IDC3D-PIK-SWD01-CRS326', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(101, 'devices', 7, 'IDC3D-RR-1-C2004', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(102, 'devices', 32, 'NEUYG-PIK-BITBOX-TD1', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(103, 'devices', 25, 'NEUYG-PIK-SWC01-C309', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(104, 'devices', 38, 'PIK-APJII-SW-01', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(105, 'devices', 28, 'PIK-BMS-CCR1009', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(106, 'devices', 37, 'PIK-CYBER-CNT-1', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(107, 'devices', 34, 'PIK-CYBER-OTB', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(108, 'devices', 35, 'PIK-CYBER-RR-1', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(109, 'devices', 36, 'PIK-CYBER-SW-1', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(110, 'devices', 39, 'PIK-IDC-SWD-02', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(111, 'devices', 18, 'PIK-KRPCG-CRS309-1G-8S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(112, 'devices', 17, 'PIK-KRPCG-RB5009', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(113, 'devices', 16, 'PIK-LGS-RB5009', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(114, 'devices', 33, 'PIK-PBYS-CSS326', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(115, 'devices', 9, 'PIK-PWT-ARSA-CRS309', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(116, 'devices', 10, 'PIK-PWT-ARSA-CRS326-24G-2S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(117, 'devices', 26, 'PIK-SDGRN-CRS326', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(118, 'devices', 29, 'PIK07-KRA', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(119, 'devices', 23, 'PUSKO01-GDM-CRS310-1G-5S-4S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(120, 'devices', 27, 'PUSKO01-KDR-CRS309', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(121, 'devices', 15, 'PUSKO01-KDRJ-CCR2116-12G-4S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(122, 'devices', 14, 'PUSKO02-KWT-CCR2116-12G-4S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(123, 'devices', 19, 'PUSKO02-KWT-CRS326-24G-2S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(124, 'devices', 31, 'PWT-PIK-C02-CCR1036-12G-4S', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(125, 'devices', 30, 'PWT-PIK-KTS-CRS310-1G-5S-4S+', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(126, 'devices', 12, 'Server Farm 1', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(127, 'devices', 11, 'Server Farm 2', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(128, 'devices', 13, 'Server Farm 3', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(129, 'devices', 8, 'SW-Border-iForte', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52'),
+(130, 'devices', 24, 'YG-NEUCIX-PIK-C01-CCR1036', 'ok', 'Synced OK', NULL, '2026-02-23 00:41:52', '2026-02-23 00:41:52', '2026-02-23 00:41:52');
 
 -- --------------------------------------------------------
 
@@ -491,6 +601,29 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `providers`
+--
+
+CREATE TABLE `providers` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `providers`
+--
+
+INSERT INTO `providers` (`id`, `name`, `type`, `created_at`, `updated_at`) VALUES
+(1, 'IFORTE', 'Provider', '2026-02-22 23:00:06', '2026-02-22 23:00:06'),
+(2, 'Fiberstar', 'Provider', '2026-02-22 23:00:12', '2026-02-22 23:00:12'),
+(3, 'RBN', 'NAP', '2026-02-22 23:00:18', '2026-02-22 23:00:22');
 
 -- --------------------------------------------------------
 
@@ -510,6 +643,14 @@ CREATE TABLE `service_logs` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `service_logs`
+--
+
+INSERT INTO `service_logs` (`id`, `customer_id`, `type`, `old_bandwidth`, `new_bandwidth`, `request_date`, `execute_date`, `notes`, `created_at`, `updated_at`) VALUES
+(7, 44, 'upgrade', '600', '1000', '2026-02-23', '2026-02-23', NULL, '2026-02-23 00:08:27', '2026-02-23 00:08:27'),
+(8, 45, 'downgrade', '200', '1000', '2026-02-23', '2026-02-23', NULL, '2026-02-23 00:41:35', '2026-02-23 00:41:35');
 
 -- --------------------------------------------------------
 
@@ -554,7 +695,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('jLkjXsBu9IiYRoQRBIrOvfU3VnwfcSBmCDHELpue', 1, '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiUUwyS011ZlJvNnAzVnI0WjRJRDRlTEtqTjNoM1hMY3l2ZEV3dVdsTCI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQwOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYmFja2JvbmVfaW5jaWRlbnRzIjtzOjU6InJvdXRlIjtzOjI0OiJiYWNrYm9uZV9pbmNpZGVudHMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1771650265);
+('TuGSsgBuVpuT77c6cKpmb9xpbdxr3yUchIiDTp2h', 1, '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiUVdtOE9EZXh0UENraUpFRHlEblV5VGpCYTVNTjNJY0NUbXhBNmtNYSI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjMxOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvZGFzaGJvYXJkIjtzOjU6InJvdXRlIjtzOjk6ImRhc2hib2FyZCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1771832860);
 
 -- --------------------------------------------------------
 
@@ -641,6 +782,8 @@ INSERT INTO `site_groups` (`id`, `netbox_id`, `name`, `slug`, `parent_id`, `pare
 CREATE TABLE `upstreams` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `peer_name` varchar(255) NOT NULL,
+  `provider` varchar(255) DEFAULT NULL,
+  `asn` varchar(255) DEFAULT NULL,
   `capacity` varchar(255) DEFAULT NULL,
   `location_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -711,6 +854,13 @@ ALTER TABLE `backbone_incidents`
 --
 ALTER TABLE `backbone_links`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `backbone_logs`
+--
+ALTER TABLE `backbone_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `backbone_logs_backbone_link_id_foreign` (`backbone_link_id`);
 
 --
 -- Indeks untuk tabel `cache`
@@ -800,6 +950,13 @@ ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`email`);
 
 --
+-- Indeks untuk tabel `providers`
+--
+ALTER TABLE `providers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `providers_name_unique` (`name`);
+
+--
 -- Indeks untuk tabel `service_logs`
 --
 ALTER TABLE `service_logs`
@@ -866,19 +1023,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `backbone_incidents`
 --
 ALTER TABLE `backbone_incidents`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `backbone_links`
 --
 ALTER TABLE `backbone_links`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT untuk tabel `backbone_logs`
+--
+ALTER TABLE `backbone_logs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT untuk tabel `customer_incidents`
@@ -914,7 +1077,7 @@ ALTER TABLE `locations`
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT untuk tabel `monthly_summaries`
@@ -926,13 +1089,19 @@ ALTER TABLE `monthly_summaries`
 -- AUTO_INCREMENT untuk tabel `netbox_sync_logs`
 --
 ALTER TABLE `netbox_sync_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
+
+--
+-- AUTO_INCREMENT untuk tabel `providers`
+--
+ALTER TABLE `providers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `service_logs`
 --
 ALTER TABLE `service_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT untuk tabel `service_types`
@@ -979,6 +1148,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `backbone_incidents`
   ADD CONSTRAINT `backbone_incidents_backbone_link_id_foreign` FOREIGN KEY (`backbone_link_id`) REFERENCES `backbone_links` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `backbone_logs`
+--
+ALTER TABLE `backbone_logs`
+  ADD CONSTRAINT `backbone_logs_backbone_link_id_foreign` FOREIGN KEY (`backbone_link_id`) REFERENCES `backbone_links` (`id`) ON DELETE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `customers`
