@@ -94,7 +94,14 @@
             </div>
             <div>
                 <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Month</label>
-                <input type="month" name="month" value="{{ request('month') }}" style="border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size:.875rem;color:#374151;height:33px;">
+                <select name="month" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;height:33px;line-height:19px;">
+                    <option value="all" {{ request('month') === 'all' ? 'selected' : '' }}>All Months</option>
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ sprintf('%02d', $m) }}" {{ request('month') == sprintf('%02d', $m) ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             <div>
                 <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Type</label>

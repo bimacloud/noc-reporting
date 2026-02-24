@@ -51,7 +51,7 @@
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
 
         {{-- Incidents --}}
-        <a href="{{ route('customer_incidents.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('customer_incidents.index', ['month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:#fee2e2;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:#ef4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -65,7 +65,7 @@
         </a>
 
         {{-- Downtime --}}
-        <a href="{{ route('backbone_incidents.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('backbone_incidents.index', ['month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:#ffedd5;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:#f97316;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -87,7 +87,7 @@
             $slaColor  = $slaPercentage >= 99 ? '#16a34a' : ($slaPercentage >= 95 ? '#ca8a04' : '#dc2626');
             $slaBg     = $slaPercentage >= 99 ? '#dcfce7' : ($slaPercentage >= 95 ? '#fef9c3' : '#fee2e2');
         @endphp
-        <a href="{{ route('device_reports.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('device_reports.index', ['month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:{{ $slaBg }};border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:{{ $slaColor }};" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -101,7 +101,7 @@
         </a>
 
         {{-- New Activations --}}
-        <a href="{{ route('service_logs.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('service_logs.index', ['type' => 'activation', 'month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:#dbeafe;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:#3b82f6;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -115,7 +115,7 @@
         </a>
 
         {{-- Upgrades --}}
-        <a href="{{ route('service_logs.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('service_logs.index', ['type' => 'upgrade', 'month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:#cffafe;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:#0891b2;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -129,7 +129,7 @@
         </a>
 
         {{-- Downgrades --}}
-        <a href="{{ route('service_logs.index') }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
+        <a href="{{ route('service_logs.index', ['type' => 'downgrade', 'month' => $selectedMonth === 'all' ? '' : $selectedMonth, 'year' => $selectedYear]) }}" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #f3f4f6;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px;text-decoration:none;transition:box-shadow .15s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';this.style.transform='translateY(0)'">
             <div style="width:48px;height:48px;background:#f3f4f6;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg style="width:24px;height:24px;color:#4b5563;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />

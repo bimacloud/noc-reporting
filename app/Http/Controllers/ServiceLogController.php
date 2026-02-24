@@ -31,9 +31,10 @@ class ServiceLogController extends Controller
             $query->whereYear('request_date', $request->year);
         }
 
-        if ($request->filled('month')) {
-            $query->whereMonth('request_date', date('m', strtotime($request->month)))
-                  ->whereYear('request_date', date('Y', strtotime($request->month)));
+        if ($request->filled('month') && $request->month !== 'all') {
+            // Support both strict "MM" format from dashboard and fallback generic formats
+            $monthNum = is_numeric($request->month) ? $request->month : date('m', strtotime($request->month));
+            $query->whereMonth('request_date', $monthNum);
         }
 
         if ($request->filled('type')) {
