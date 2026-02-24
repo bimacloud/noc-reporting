@@ -36,7 +36,7 @@ class ServiceLogController extends Controller
             $query->where('type', $request->type);
         }
 
-        $logs = $query->latest('request_date')->paginate(20)->withQueryString();
+        $logs = $query->latest('request_date')->get();
         $customers = Customer::all();
 
         return view('service_logs.index', compact('logs', 'customers'));

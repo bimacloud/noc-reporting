@@ -100,7 +100,8 @@
     </div>
 
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);">
-        <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <div style="overflow-x:auto;">
+            <table id="serviceLogsTable" style="width:100%;border-collapse:collapse;font-size:.875rem;text-align:left;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
                     <th style="padding:11px 16px;text-align:left;font-weight:600;color:#374151;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">#</th>
@@ -116,7 +117,7 @@
             <tbody>
                 @forelse($logs as $log)
                 <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
-                    <td style="padding:11px 16px;color:#9ca3af;">{{ $logs->firstItem() + $loop->index }}</td>
+                    <td style="padding:11px 16px;color:#9ca3af;">{{ $loop->iteration }}</td>
                     <td style="padding:11px 16px;color:#111827;font-weight:500;">{{ $log->customer->name ?? '—' }}</td>
                     <td style="padding:11px 16px;">
                         @php
@@ -153,19 +154,43 @@
                 @endforelse
             </tbody>
         </table>
-        @if($logs->hasPages())
-        <div style="padding:12px 16px;border-top:1px solid #f3f4f6;">{{ $logs->links() }}</div>
-        @endif
+        </div>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        .dataTables_wrapper { padding: 16px; }
+        .dataTables_wrapper .dataTables_length select { padding-right: 30px; border: 1px solid #e5e7eb; border-radius: 4px; }
+        .dataTables_wrapper .dataTables_filter input { padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 4px; margin-left: 8px; }
+        table.dataTable thead th, table.dataTable tbody td { border-bottom: 1px solid #e5e7eb !important; }
+        table.dataTable.no-footer { border-bottom: none; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #2563eb; color: #fff !important; border-radius: 4px; border: 1px solid #2563eb;
+        }
+    </style>
 
     @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#filter_customer_id').select2({
                 placeholder: 'All Customers',
                 width: '100%'
+            });
+
+            $('#serviceLogsTable').DataTable({
+                "pageLength": 20,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "emptyTable": "No service logs found."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 7 }
+                ],
+                "order": [[5, "desc"]]
             });
         });
     </script>
