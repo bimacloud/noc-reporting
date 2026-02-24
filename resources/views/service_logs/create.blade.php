@@ -45,7 +45,7 @@
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Service Type *</label>
                         <select name="type" required style="{{ $inp }}">
                             <option value="">— Select —</option>
-                            @foreach(['activation','upgrade','downgrade','suspension','termination'] as $t)
+                            @foreach(['activation','upgrade','downgrade','suspension','termination','deactivasi'] as $t)
                                 <option value="{{ $t }}" {{ old('type')===$t?'selected':'' }}>{{ ucfirst($t) }}</option>
                             @endforeach
                         </select>
