@@ -15,58 +15,74 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedDate = $request->input('date', Carbon::now()->format('Y-m'));
+        $selectedMonth = $request->input('month', Carbon::now()->format('m'));
+        $selectedYear = $request->input('year', Carbon::now()->format('Y'));
+        
         try {
-            $now = Carbon::createFromFormat('Y-m', $selectedDate);
+            $monthNum = $selectedMonth === 'all' ? 1 : $selectedMonth;
+            $now = Carbon::createFromDate($selectedYear, $monthNum, 1);
         } catch (\Exception $e) {
             $now = Carbon::now();
-            $selectedDate = $now->format('Y-m');
+            $selectedMonth = $now->format('m');
+            $selectedYear = $now->format('Y');
         }
 
-        $month = $now->format('m');
-        $year = $now->format('Y');
+        $month = $selectedMonth; // can be 'all'
+        $year = $selectedYear;
         $daysInMonth = $now->daysInMonth;
-        $totalMinutesInMonth = $daysInMonth * 24 * 60;
+        $daysInYear = $now->isLeapYear() ? 366 : 365;
+        $totalMinutesInPeriod = ($month === 'all' ? $daysInYear : $daysInMonth) * 24 * 60;
 
-        $customerIncidentsCount = CustomerIncident::whereMonth('incident_date', $month)
-            ->whereYear('incident_date', $year)
-            ->count();
+        $cQuery = CustomerIncident::whereYear('incident_date', $year);
+        if ($month !== 'all') {
+            $cQuery->whereMonth('incident_date', $month);
+        }
+        $customerIncidentsCount = $cQuery->count();
 
-        $backboneIncidentsCount = \App\Models\BackboneIncident::whereMonth('incident_date', $month)
-            ->whereYear('incident_date', $year)
-            ->count();
+        $bQuery = \App\Models\BackboneIncident::whereYear('incident_date', $year);
+        if ($month !== 'all') {
+            $bQuery->whereMonth('incident_date', $month);
+        }
+        $backboneIncidentsCount = $bQuery->count();
 
         $totalIncidents = $customerIncidentsCount + $backboneIncidentsCount;
 
-        $customerDowntime = CustomerIncident::whereMonth('incident_date', $month)
-            ->whereYear('incident_date', $year)
-            ->sum('duration');
+        $cDQuery = CustomerIncident::whereYear('incident_date', $year);
+        if ($month !== 'all') {
+            $cDQuery->whereMonth('incident_date', $month);
+        }
+        $customerDowntime = $cDQuery->sum('duration');
 
-        $backboneDowntime = \App\Models\BackboneIncident::whereMonth('incident_date', $month)
-            ->whereYear('incident_date', $year)
-            ->sum('duration');
+        $bDQuery = \App\Models\BackboneIncident::whereYear('incident_date', $year);
+        if ($month !== 'all') {
+            $bDQuery->whereMonth('incident_date', $month);
+        }
+        $backboneDowntime = $bDQuery->sum('duration');
 
         $totalDowntime = $customerDowntime + $backboneDowntime;
 
         // Ensure SLA respects combined downtime
-        $slaPercentage = $totalMinutesInMonth > 0 
-            ? max(0, (($totalMinutesInMonth - $totalDowntime) / $totalMinutesInMonth) * 100)
+        $slaPercentage = $totalMinutesInPeriod > 0 
+            ? max(0, (($totalMinutesInPeriod - $totalDowntime) / $totalMinutesInPeriod) * 100)
             : 100;
 
-        $totalActivations = ServiceLog::where('type', 'activation')
-            ->whereMonth('request_date', $month)
-            ->whereYear('request_date', $year)
-            ->count();
+        $aQuery = ServiceLog::where('type', 'activation')->whereYear('request_date', $year);
+        if ($month !== 'all') {
+            $aQuery->whereMonth('request_date', $month);
+        }
+        $totalActivations = $aQuery->count();
 
-        $totalUpgrades = ServiceLog::where('type', 'upgrade')
-            ->whereMonth('request_date', $month)
-            ->whereYear('request_date', $year)
-            ->count();
+        $uQuery = ServiceLog::where('type', 'upgrade')->whereYear('request_date', $year);
+        if ($month !== 'all') {
+            $uQuery->whereMonth('request_date', $month);
+        }
+        $totalUpgrades = $uQuery->count();
 
-        $totalDowngrades = ServiceLog::where('type', 'downgrade')
-            ->whereMonth('request_date', $month)
-            ->whereYear('request_date', $year)
-            ->count();
+        $dQuery = ServiceLog::where('type', 'downgrade')->whereYear('request_date', $year);
+        if ($month !== 'all') {
+            $dQuery->whereMonth('request_date', $month);
+        }
+        $totalDowngrades = $dQuery->count();
 
         // 2. Charts Data
         $incidentFilter = request('incident_filter', 'weekly');
@@ -77,8 +93,18 @@ class DashboardController extends Controller
         $incidentsChartData = [];
 
         if ($incidentFilter === 'daily') {
-            $cData = $cQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
-            $bData = $bQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            $cQueryDaily = clone $cQuery;
+            $bQueryDaily = clone $bQuery;
+            
+            $cQueryDaily->whereYear('incident_date', $year);
+            $bQueryDaily->whereYear('incident_date', $year);
+            if ($month !== 'all') {
+                $cQueryDaily->whereMonth('incident_date', $month);
+                $bQueryDaily->whereMonth('incident_date', $month);
+            }
+            
+            $cData = $cQueryDaily->get();
+            $bData = $bQueryDaily->get();
             
             $merged = $cData->concat($bData)->groupBy(function ($inc) {
                 return Carbon::parse($inc->incident_date)->format('d (D)'); 
@@ -107,9 +133,19 @@ class DashboardController extends Controller
             
             $incidentsChartData = $merged;
         } else {
-            // Default: Weekly (this month)
-            $cData = $cQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
-            $bData = $bQuery->whereMonth('incident_date', $month)->whereYear('incident_date', $year)->get();
+            // Default: Weekly (this period)
+            $cQueryWeekly = clone $cQuery;
+            $bQueryWeekly = clone $bQuery;
+            
+            $cQueryWeekly->whereYear('incident_date', $year);
+            $bQueryWeekly->whereYear('incident_date', $year);
+            if ($month !== 'all') {
+                $cQueryWeekly->whereMonth('incident_date', $month);
+                $bQueryWeekly->whereMonth('incident_date', $month);
+            }
+            
+            $cData = $cQueryWeekly->get();
+            $bData = $bQueryWeekly->get();
             
             $merged = $cData->concat($bData)->groupBy(function ($inc) {
                 return 'Week ' . Carbon::parse($inc->incident_date)->format('W');
@@ -119,14 +155,18 @@ class DashboardController extends Controller
         }
 
         // Downtime per Device
-        $downtimePerDevice = DeviceReport::with('device')
+        $dtQuery = DeviceReport::with('device')
             ->select('device_id', DB::raw('SUM(duration_downtime) as total_downtime'))
-            ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->groupBy('device_id')
             ->orderByDesc('total_downtime')
-            ->limit(5)
-            ->get()
+            ->limit(5);
+            
+        if ($month !== 'all') {
+            $dtQuery->whereMonth('created_at', $month);
+        }
+
+        $downtimePerDevice = $dtQuery->get()
             ->map(function ($report) {
                 return [
                     'device' => $report->device->name ?? 'Unknown',
@@ -140,11 +180,13 @@ class DashboardController extends Controller
 
         // Fetch all relevant data for the selected period
         if ($activationFilter === 'daily') {
-            $sQuery->whereMonth('request_date', $month)->whereYear('request_date', $year);
+            $sQuery->whereYear('request_date', $year);
+            if ($month !== 'all') $sQuery->whereMonth('request_date', $month);
             // Limit to today if daily means today? Or entire month? The previous code used the entire month grouped by day. 
             // If pie chart, we probably just want the total for the selected period. Let's keep it consistent: daily/weekly = this month, monthly = this year, yearly = 5 years.
         } elseif ($activationFilter === 'weekly') {
-            $sQuery->whereMonth('request_date', $month)->whereYear('request_date', $year);
+            $sQuery->whereYear('request_date', $year);
+            if ($month !== 'all') $sQuery->whereMonth('request_date', $month);
         } elseif ($activationFilter === 'yearly') {
             $sQuery->whereYear('request_date', '>=', $year - 4);
         } else { // monthly
@@ -171,7 +213,8 @@ class DashboardController extends Controller
             'pieUpgrades',
             'pieDowngrades',
             'activationFilter',
-            'selectedDate'
+            'selectedMonth',
+            'selectedYear'
         ));
     }
 
