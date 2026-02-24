@@ -84,6 +84,19 @@
                 </select>
             </div>
             <div>
+                <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Year</label>
+                <select name="year" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;height:33px;line-height:19px;">
+                    <option value="">All Years</option>
+                    @for($i = date('Y'); $i >= 2020; $i--)
+                        <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Month</label>
+                <input type="month" name="month" value="{{ request('month') }}" style="border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size:.875rem;color:#374151;height:33px;">
+            </div>
+            <div>
                 <label style="display:block;font-size:.75rem;font-weight:500;color:#374151;margin-bottom:4px;">Type</label>
                 <select name="type" style="border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:.875rem;color:#374151;">
                     <option value="">All Types</option>
@@ -115,7 +128,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($logs as $log)
+                @foreach($logs as $log)
                 <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
                     <td style="padding:11px 16px;color:#9ca3af;">{{ $loop->iteration }}</td>
                     <td style="padding:11px 16px;color:#111827;font-weight:500;">{{ $log->customer->name ?? '—' }}</td>
@@ -149,9 +162,7 @@
                         </div>
                     </td>
                 </tr>
-                @empty
-                <tr><td colspan="8" style="padding:40px 16px;text-align:center;color:#9ca3af;">No service logs found.</td></tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
         </div>
@@ -181,7 +192,7 @@
             });
 
             $('#serviceLogsTable').DataTable({
-                "pageLength": 20,
+                "pageLength": 10,
                 "language": {
                     "search": "Search:",
                     "lengthMenu": "Show _MENU_ entries",

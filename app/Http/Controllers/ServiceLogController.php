@@ -27,6 +27,10 @@ class ServiceLogController extends Controller
     {
         $query = ServiceLog::with('customer');
 
+        if ($request->filled('year')) {
+            $query->whereYear('request_date', $request->year);
+        }
+
         if ($request->filled('month')) {
             $query->whereMonth('request_date', date('m', strtotime($request->month)))
                   ->whereYear('request_date', date('Y', strtotime($request->month)));
@@ -34,6 +38,10 @@ class ServiceLogController extends Controller
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
+        }
+
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
         }
 
         $logs = $query->latest('request_date')->get();
