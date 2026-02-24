@@ -18,7 +18,7 @@ class StoreServiceLogRequest extends FormRequest
     {
         return [
             'customer_id' => 'required|exists:customers,id',
-            'type' => 'required|in:activation,deactivation,upgrade,downgrade',
+            'type' => 'required|in:activation,deactivation,upgrade,downgrade,suspension,termination',
             'old_bandwidth' => 'nullable|string',
             'new_bandwidth' => 'nullable|string',
             'request_date' => 'required|date',
