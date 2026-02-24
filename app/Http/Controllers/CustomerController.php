@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
 use App\Models\ServiceType;
+use App\Models\Provider;
 
 class CustomerController extends Controller
 {
@@ -17,14 +18,15 @@ class CustomerController extends Controller
 
     public function index()
     {
-        $customers = Customer::with('serviceType')->get();
+        $customers = Customer::with(['serviceType', 'provider'])->get();
         return view('customers.index', compact('customers'));
     }
 
     public function create()
     {
         $types = ServiceType::all();
-        return view('customers.create', compact('types'));
+        $providers = Provider::all();
+        return view('customers.create', compact('types', 'providers'));
     }
 
     public function store(StoreCustomerRequest $request)
@@ -35,13 +37,17 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        return view('customers.show', ['customer' => $customer]);
+        $serviceLogs = $customer->serviceLogs()->orderBy('request_date', 'desc')->get();
+        $incidents = $customer->customerIncidents()->orderBy('incident_date', 'desc')->get();
+
+        return view('customers.show', compact('customer', 'serviceLogs', 'incidents'));
     }
 
     public function edit(Customer $customer)
     {
         $types = ServiceType::all();
-        return view('customers.edit', compact('customer', 'types'));
+        $providers = Provider::all();
+        return view('customers.edit', compact('customer', 'types', 'providers'));
     }
 
     public function update(UpdateCustomerRequest $request, Customer $customer)

@@ -25,7 +25,7 @@
                     <textarea name="address" style="{{ $inp }}" rows="3">{{ old('address', $customer->address) }}</textarea>
                     @error('address') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Service Type *</label>
                         <select name="service_type_id" required style="{{ $inp }}">
@@ -34,6 +34,16 @@
                             @endforeach
                         </select>
                         @error('service_type_id') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Provider Metro-E</label>
+                        <select name="provider_id" style="{{ $inp }}">
+                            <option value="">— Select Provider —</option>
+                            @foreach($providers as $provider)
+                                <option value="{{ $provider->id }}" {{ old('provider_id', $customer->provider_id)==$provider->id?'selected':'' }}>{{ $provider->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('provider_id') <p style="color:#dc2626;font-size:.75rem;margin-top:4px;">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:6px;">Bandwidth</label>

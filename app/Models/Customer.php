@@ -12,6 +12,7 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'service_type_id',
+        'provider_id',
         'phone',
         'address',
         'registration_date',
@@ -23,6 +24,11 @@ class Customer extends Model
     public function serviceType()
     {
         return $this->belongsTo(ServiceType::class);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
     }
 
     public function customerIncidents()

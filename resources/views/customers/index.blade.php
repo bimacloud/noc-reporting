@@ -46,7 +46,6 @@
                         <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Bandwidth</th>
                         <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Address</th>
                         <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
-                        <th style="padding:12px 16px;font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Registered</th>
                         <th style="padding:12px 16px;width:100px;"></th>
                     </tr>
                 </thead>
@@ -76,13 +75,6 @@
                                 <span style="padding:2px 8px;background:#fee2e2;color:#991b1b;border-radius:12px;font-size:.75rem;font-weight:600;">Suspended</span>
                             @else
                                 <span style="padding:2px 8px;background:#f3f4f6;color:#374151;border-radius:12px;font-size:.75rem;font-weight:600;">Inactive</span>
-                            @endif
-                        </td>
-                        <td style="padding:10px 16px;font-size:.75rem;color:#6b7280;">
-                            @if($customer->registration_date)
-                                {{ \Carbon\Carbon::parse($customer->registration_date)->format('d M Y') }}
-                            @else
-                                <span style="font-style:italic;color:#9ca3af;">Not Set</span>
                             @endif
                         </td>
                         <td style="padding:10px 16px;text-align:right;">
@@ -127,7 +119,7 @@
                     "emptyTable": "No customers found."
                 },
                 "columnDefs": [
-                    { "orderable": false, "targets": 6 }
+                    { "orderable": false, "targets": 5 }
                 ]
             });
         });

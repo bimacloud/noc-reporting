@@ -16,6 +16,7 @@ class UpdateCustomerRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'service_type_id' => 'required|exists:service_types,id',
+            'provider_id' => 'nullable|exists:providers,id',
             'bandwidth'       => 'nullable|integer|min:1',
             'registration_date'=> 'nullable|date',
             'address'         => 'nullable|string',
